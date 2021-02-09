@@ -1,18 +1,35 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <canvas 
+    id="webGL"
+    @click="simpleConsole"
+    @dblclick="doubleConsole">
+
+    </canvas>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+
 
 export default {
-  name: "Home",
-  components: {
-    HelloWorld
+  name: "WebGLCanvas",
+  data() {
+    return {
+      canvas: null
+    }
+  },
+  mounted() {
+    this.canvas = document.getElementById('webGL');
+    console.log(this.canvas);
+  },
+  methods: {
+    simpleConsole() {
+      console.log('CLICKED');
+    },
+    doubleConsole() {
+      console.log('dbClicked')
+    }
   }
 };
 </script>
