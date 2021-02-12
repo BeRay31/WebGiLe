@@ -77,17 +77,32 @@ var InitDemo = function()
         return;
     }
 
+    var instances = [];
     // Buffers
-    var triangleVertices = 
-    [// X       Y       Z       R   G   B
-        0.0,    0.5,    0.0,    1,  0,  0,
-        -0.5,   -0.5,   0.0,    0,  1,  0,
-        0.5,    -0.5,   0.0,    0,  0,  1
-    ];
+    var x = 0;
+    function addTriangle()
+    {
+        var triangleVertices = 
+        [// X       Y       Z       R   G   B
+            0.0,    0.5+x,    0.0,    1,  0,  0,
+            -0.5,   -0.5+x,   0.0,    0,  1,  0,
+            0.5,    -0.5+x,   0.0,    0,  0,  1
+        ];
 
+        x += 0.2;
+        instances.push(triangleVertices);
+        console.log('HEHE');
+    }
+    
+    addTriangle();
+
+    var triangleVertices = instances[0];
     var triangleVertexBufferObject = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+
+    console.log('HUHI');
+
 
     var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
     var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
@@ -133,6 +148,11 @@ var InitDemo = function()
     // Render loop
 
     // gl.drawArrays(gl.TRIANGLES, 0, 3);
+    window.addEventListener('click', function() 
+    { 
+        console.log("CLICK");
+        addTriangle(); 
+    });
 
     var angle = 0;
     var identityM = new Float32Array(16);
@@ -141,13 +161,24 @@ var InitDemo = function()
     var loop = function() {
         gl.clearColor(0.75, 0.85, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
+
         angle = performance.now() / 1000 / 6 * 2 * Math.PI;
 
         glMatrix.mat4.rotate(worldMatrix, identityM, angle, [0, 1, 0]);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        // Draw each instance
+        for (var i = 0; i < instances.length; i++)
+        {
+            var triangleVertices = instances[i];
+            gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+            console.log('HAHA');
+
+        }
+        
         requestAnimationFrame(loop);
     }
 
