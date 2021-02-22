@@ -19,6 +19,7 @@
 
 import createShaders from '@/utils/shaders';
 import { transalte, rotate, scale, matrixMultiplication } from '@/utils/projection';
+import { drawSquare } from '@/utils/square';
 
 export default {
   name: "WebGLCanvas",
@@ -59,6 +60,11 @@ export default {
     this.gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0]);
     this.gl.enableVertexAttribArray(vertexPos);
     this.gl.drawArrays(this.gl.TRIANGLES, 0, triangleData.length/2);
+
+    // draw square
+    drawSquare(1.0, 1.0, 1, this.gl, shaderProgram);  
+    // this.gl.useProgram(square);
+
   },
   methods: {
     simpleConsole() {
