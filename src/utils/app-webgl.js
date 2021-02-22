@@ -14,7 +14,8 @@ var vertexShaderText =
     'void main()',
     '{',
     '   fragColor = vertColor;',
-    '   gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);',
+    // '   gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);',
+    '   gl_Position = vec4(vertPosition, 1.0);',
     '}'
 ].join('\n');
 
@@ -29,10 +30,31 @@ var fragmentShaderText =
     '}'
 ].join('\n');
 
+var getRelativeMousePosition = function(event, canvas)
+{
+    canvas = canvas || event.target;
+    var canvasRectangle = canvas.getBoundingClientRect();
+
+    var pos;
+    // Remove mouse offset relative to viewset
+    pos.x = event.clientX - canvasRectangle.left;
+    pos.y = event.clientY - canvasRectangle.top;
+
+    // Change into WebGL coordinates
+}
+
+var convertToCanvasCoordinates = function(absoluteCoordinates, canvas)
+{
+    absoluteCoordinates.x = absoluteCoordinates.x / canvas.width * 2 - 1;
+    absoluteCoordinates.y = absoluteCoordinates.y / canvas.height * -2 + 1;
+
+    return absoluteCoordinates;
+}
+
 var InitDemo = function()
 {
     console.log('Loaded');
-    var canvas = document.getElementById('surface');
+    var canvas = document.getElementById('webGL');
     var gl = canvas.getContext('webgl');
 
     gl.clearColor(0.75, 0.85, 0.8, 1.0);
@@ -85,8 +107,8 @@ var InitDemo = function()
         var triangleVertices = 
         [// X       Y       Z       R   G   B
             0.0,    0.5+x,    0.0,    1,  0,  0,
-            -0.5,   -0.5+x,   0.0,    0,  1,  0,
-            0.5,    -0.5+x,   0.0,    0,  0,  1
+            -0.4,   -0.5+x,   0.0,    0,  1,  0,
+            0.4,    -0.5+x,   0.0,    0,  0,  1
         ];
 
         x += 0.2;
@@ -137,9 +159,9 @@ var InitDemo = function()
     var viewMatrix = new Float32Array(16);
     var projMatrix = new Float32Array(16);
 
-    glMatrix.mat4.identity(worldMatrix);
-    glMatrix.mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
-    glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
+    // glMatrix.mat4.identity(worldMatrix);
+    // glMatrix.mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+    // glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
 
     gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
     gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
@@ -167,7 +189,6 @@ var InitDemo = function()
         glMatrix.mat4.rotate(worldMatrix, identityM, angle, [0, 1, 0]);
         gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
 
-        // Draw each instance
         for (var i = 0; i < instances.length; i++)
         {
             var triangleVertices = instances[i];
@@ -176,8 +197,10 @@ var InitDemo = function()
 
             gl.drawArrays(gl.TRIANGLES, 0, 3);
             console.log('HAHA');
-
         }
+        
+        
+
         
         requestAnimationFrame(loop);
     }

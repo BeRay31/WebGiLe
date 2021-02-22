@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" onload="InitDemo()">
     <canvas 
     id="webGL"
     @click="simpleConsole"
