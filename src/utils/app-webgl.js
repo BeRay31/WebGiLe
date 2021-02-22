@@ -52,6 +52,62 @@ var convertToCanvasCoordinates = function(absoluteCoordinates, canvas)
     return absoluteCoordinates;
 }
 
+class GLObject {
+    constructor(id, program, glContext)
+    {
+        this.id = id;
+        this.program = program;
+        this.gl = glContext;
+        this.scaleFactor = [1, 1];
+        this.translateDelta = [0, 0];
+    }
+
+    setVertex(vertexArray)
+    {
+        this.vertices = vertexArray;
+    }
+
+    setColor(colorRGB)
+    {
+        this.color = colorRGB;
+    }
+
+    scale(x, y)
+    {
+        this.scaleFactor = [x, y];
+    }
+
+    translate(x, y)
+    {
+        this.translateDelta = [x, y];
+    }
+
+    draw()
+    {
+        var positionAttribLocation = this.gl.getAttribLocation(this.program, 'vertPosition');
+        this.gl.vertexAttribPointer(
+            positionAttribLocation,
+            3,
+            this.gl.FLOAT,
+            this.gl.FALSE,
+            3 * Float32Array.BYTES_PER_ELEMENT,
+            0
+        );
+
+        this.gl.enableVertexAttribArray(positionAttribLocation);
+        this.gl.useProgram(this.program);
+
+        var colorUniformLocation = this.gl.getUniformLocation(this.program, 'color');
+        this.gl.uniform3f(colorUniformLocation, this.gl.FALSE, this.color[0], this.color[1], this.color[2]);
+
+        var vertexBufferObject = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertexBufferObject);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(this.vertices), this.gl.STATIC_DRAW);
+
+        this.gl.drawArrays(this.gl.TRIANGLES, 0, 3);
+    }
+}
+
 var InitDemo = function()
 {
     console.log('Loaded');
@@ -100,48 +156,7 @@ var InitDemo = function()
         return;
     }
 
-    var instances = [];
-    var instanceColors = new Array();
-    // Buffers
-    var x = 0;
-    var y = 0.5;
-    function addTriangle()
-    {
-        // var triangleVertices = 
-        // [// X       Y       Z       R   G   B
-        //     0.0,    0.5+x,    0.0,    1,  0,  0,
-        //     -0.4,   -0.5+x,   0.0,    0,  1,  0,
-        //     0.4,    -0.5+x,   0.0,    0,  0,  1
-        // ];
-
-        var triangleVertices = 
-        [// X       Y       Z     
-            0.0,    0.5+x,    0.0,
-            -0.4,   -0.5+x,   0.0,   
-            0.4,    -0.5+x,   0.0  
-        ];
-
-        var triangleColor = new Float32Array([0+y, 0, 0]);
-
-        x += 0.2;
-        y += 0.1;
-        instances.push(triangleVertices);
-        instanceColors.push(triangleColor);
-        console.log('HEHE');
-    }
-    
-    addTriangle();
-
-    var triangleVertices = instances[0];
-    var triangleVertexBufferObject = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
-
-    console.log('HUHI');
-
-
     var positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
-    // var colorAttribLocation = gl.getAttribLocation(program, 'vertColor');
     gl.vertexAttribPointer(
         positionAttribLocation,
         3,
@@ -151,82 +166,32 @@ var InitDemo = function()
         0
     );
 
-    // gl.vertexAttribPointer(
-    //     colorAttribLocation,
-    //     3,
-    //     gl.FLOAT,
-    //     gl.FALSE,
-    //     6 * Float32Array.BYTES_PER_ELEMENT,
-    //     3 * Float32Array.BYTES_PER_ELEMENT
-    // )
-
     gl.enableVertexAttribArray(positionAttribLocation);
-    // gl.enableVertexAttribArray(colorAttribLocation);
-
     gl.useProgram(program);
-    
-    // var matWorldUniformLocation = gl.getUniformLocation(program, 'mWorld');
-    // var matViewUniformLocation = gl.getUniformLocation(program, 'mView');
-    // var matProjUniformLocation = gl.getUniformLocation(program, 'mProj');
 
-    // var worldMatrix = new Float32Array(16);
-    // var viewMatrix = new Float32Array(16);
-    // var projMatrix = new Float32Array(16);
-
-    // glMatrix.mat4.identity(worldMatrix);
-    // glMatrix.mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
-    // glMatrix.mat4.perspective(projMatrix, glMatrix.glMatrix.toRadian(45), canvas.width / canvas.height, 0.1, 1000.0);
-
-    // gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
-    // gl.uniformMatrix4fv(matViewUniformLocation, gl.FALSE, viewMatrix);
-    // gl.uniformMatrix4fv(matProjUniformLocation, gl.FALSE, projMatrix);
-
-    // Render loop
-
-    // gl.drawArrays(gl.TRIANGLES, 0, 3);
     window.addEventListener('click', function() 
     { 
         console.log("CLICK");
-        addTriangle(); 
     });
 
-    // var angle = 0;
-    // var identityM = new Float32Array(16);
-    // glMatrix.mat4.identity(identityM);
+    var testTriangle = new GLObject(1, program, gl);
+    var triangleVertices = 
+        [// X       Y       Z     
+            0.0,    0.5,    0.0,
+            -0.4,   -0.5,   0.0,   
+            0.4,    -0.5,   0.0  
+        ];
+
+    testTriangle.setVertex(triangleVertices);
+    testTriangle.setColor([1, 0, 0]);
 
     var loop = function() {
         gl.clearColor(0.75, 0.85, 0.8, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // angle = performance.now() / 1000 / 6 * 2 * Math.PI;
-
-        // glMatrix.mat4.rotate(worldMatrix, identityM, angle, [0, 1, 0]);
-        // gl.uniformMatrix4fv(matWorldUniformLocation, gl.FALSE, worldMatrix);
-
-        for (var i = 0; i < instances.length; i++)
-        {
-            var colorUniformLocation = gl.getUniformLocation(program, 'color');
-            gl.uniform3f(colorUniformLocation, gl.FALSE, instanceColors[i][0], instanceColors[i][1], instanceColors[i][2]);
-
-            var triangleVertices = instances[i];
-            gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangleVertices), gl.STATIC_DRAW);
-
-            
-
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
-            console.log('HAHA');
-        }
+        testTriangle.draw();
         
         requestAnimationFrame(loop);
     }
-
     requestAnimationFrame(loop);
 }
-
-// var canvas = document.querySelector('canvas');
-
-// canvas.width = window.innerWidth;
-// canvas.height = window.innerHeight;
-
-// var c = canvas.getContext('webgl');
