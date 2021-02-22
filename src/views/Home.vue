@@ -6,8 +6,8 @@
         id="webGL"
         @click="simpleConsole"
         @dblclick="doubleConsole"
-        width="1280"
-        height="720"
+        width="1280px"
+        height="720px"
       >
 
       </canvas>
@@ -18,7 +18,7 @@
 <script>
 
 import createShaders from '@/utils/shaders';
-import { transalte, rotate, scale, matrixMultiplication } from '@/utils/projection';
+import GLObject from '@/utils/GLobject';
 
 export default {
   name: "WebGLCanvas",
@@ -26,46 +26,76 @@ export default {
     return {
       canvas: null,
       gl: null,
-      buffer: [],
+      shaderProgram: null,
+      glToRender: new Array(),
+      itemCount: 0
     }
   },
   mounted() {
     this.canvas = document.getElementById('webGL');
     this.gl = this.canvas.getContext('webgl2');
-
-    const triangleData = [
-      0.0, 0.0,
-      1.0, 0.0,
-      0.0, 1.0
-    ]
-
-    this.gl.clearColor(1,1,1,1);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
-
-    const vertBuf = this.gl.createBuffer()
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, vertBuf)
-    this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(triangleData), this.gl.STATIC_DRAW)
-
+    //  setup shader  
     const shaderProgram = createShaders(this.gl);
     this.gl.useProgram(shaderProgram);
+    this.shaderProgram = shaderProgram;
 
-    const projectMat = matrixMultiplication(matrixMultiplication(rotate(270), scale(0.25, 0.25)), transalte(-0.12, 0));
-    const uniformPos = this.gl.getUniformLocation(shaderProgram, 'u_proj_mat')
-    this.gl.uniformMatrix3fv(uniformPos, false, projectMat);
+    const triangleData = [
+      // X , Y
+      0.0, 0.0,
+      1.0, 0.0,
+      0.0, 1.0,
+      0.0, 1.0,
+      1.0, 1.0,
+      1.0, 0.0
+    ]
 
-    const vertexPos = this.gl.getAttribLocation(shaderProgram, 'a_position');
-    const uniformCol = this.gl.getUniformLocation(shaderProgram, 'u_fragColor');
-    this.gl.vertexAttribPointer(vertexPos, 2, this.gl.FLOAT, false, 0, 0);
-    this.gl.uniform4fv(uniformCol, [1.0, 0.0, 0.0, 1.0]);
-    this.gl.enableVertexAttribArray(vertexPos);
-    this.gl.drawArrays(this.gl.TRIANGLES, 0, triangleData.length/2);
+
+    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+    ob1.setVertexArr(triangleData);
+    ob1.setTranslatePoint(-1.0,-1.0);
+    ob1.setRotateDegree(0);
+    ob1.setScaleSize(1.0,1.0);
+    ob1.setColorVector(1.0, 1.0, 0.0, 1.0);
+    ob1.bindBuffer();
+
+    const ob2 = new GLObject(0, this.shaderProgram, this.gl);
+    ob2.setVertexArr(triangleData);
+    ob2.setTranslatePoint(0.0,0.0);
+    ob2.setRotateDegree(0);
+    ob2.setScaleSize(1.0,1.0);
+    ob2.setColorVector(1.0, 0.0, 0.0, 1.0);
+    ob2.bindBuffer();
+
+    this.addObject(ob1)
+    this.addObject(ob2)
   },
   methods: {
-    simpleConsole() {
-      console.log("CLICKED");
+    clearCanvas() {
+      this.gl.clearColor(1,1,1,1);
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT);
     },
-    doubleConsole() {
-      console.log("dbClicked");
+    addObject(obj) {
+      this.glToRender.push(obj)
+      this.itemCount++;
+    },
+    deleteObject(index) {
+      this.glToRender.splice(index, 1);
+      this.itemCount--;
+    },
+    render() {
+      this.clearCanvas();
+      for(const obj of this.glToRender) {
+        obj.draw()
+      }
+    },
+    createObject() {
+      const newObj = new GLObject(this.itemCount, this.shaderProgram, this.gl);
+      this.addObject(newObj)
+    }
+  },
+  watch: {
+    itemCount() {
+      this.render();
     }
   }
 };
