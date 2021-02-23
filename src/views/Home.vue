@@ -250,6 +250,7 @@ export default {
       this.selectedObject = null; 
       this.currentFeature = null; 
       this.lineObject = null;
+      this.editor.releaseObject();
     }
   },
   watch: {
