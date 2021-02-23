@@ -180,6 +180,7 @@ export default {
 
       // erase frame buffer
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+      this.gl.disable(this.gl.DEPTH_TEST);
 
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
