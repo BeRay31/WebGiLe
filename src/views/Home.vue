@@ -100,6 +100,23 @@ export default {
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 
     // this.editor = new Editor(this.canvas, this.gl);
+    // const triangleData = [
+    //       // X , Y
+    //       0.0, 0.0,
+    //       100.0, 0.0,
+    //       0.0, 100.0,
+    //     ]
+
+    //     const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+    //     ob1.setVertexArr(triangleData);
+    //     ob1.setTranslatePoint(-1.0,-1.0);
+    //     ob1.setRotateDegree(0);
+    //     ob1.setScaleSize(1.0,1.0);
+    //     ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
+    //     ob1.bindBuffer();
+
+    //     this.addObject(ob1);
+    //     this.render();
   },
   methods: {
     clearCanvas() {
@@ -175,10 +192,10 @@ export default {
       }
     },
     selectFeature(e) {
-      if(this.currentFeature === e) {
+      if(this.currentFeature == e) {
         this.pointArr = null;
       }
-      this.pointArr = [];
+      this.pointArr = new Array();
       this.selectedObject = null;
       this.currentFeature = null;
       this.lineObject = null;
@@ -224,6 +241,10 @@ export default {
     },
     mouseUpHandler() {
       this.mouseDown = false;
+      this.pointArr = new Array(); 
+      this.selectedObject = null; 
+      this.currentFeature = null; 
+      this.lineObject = null;
     }
   },
   watch: {
@@ -231,7 +252,7 @@ export default {
       this.render();
     },
     mousePos(value) {
-      if(this.mouseDown && this.currentFeature === 'line') {
+      if(this.mouseDown && this.currentFeature == 'line') {
         if(this.pointArr.length > 2) {
           this.pointArr = [this.pointArr[0], this.pointArr[1]];
           this.pointArr.push(...Object.values(value));
@@ -240,12 +261,16 @@ export default {
         }
         if(!this.lineObject) {
           this.lineObject = this.createObject();
+          this.lineObject.setVertexArr([...this.pointArr]);	
+          this.lineObject.setRenderType(this.gl.LINES);	
+          this.lineObject.bindBuffer();
           this.addObject(this.lineObject);
+        } else {
+          this.lineObject.setVertexArr([...this.pointArr]);	
+          this.lineObject.setRenderType(this.gl.LINES);	
+          this.lineObject.bindBuffer();	
+          this.render();
         }
-        this.lineObject.setVertexArr(this.pointArr);
-        this.lineObject.setRenderType(this.gl.LINES);
-        this.lineObject.bindBuffer();
-        this.render();
       }
     }
   }

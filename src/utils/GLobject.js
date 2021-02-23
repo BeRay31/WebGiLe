@@ -76,6 +76,7 @@ export default class GLObject {
 
   drawSelect(selectProgram) {
     this.calculateProjMat();
+    this.bindBuffer();
     this.glContext.useProgram(selectProgram);
     let vertexPos = this.glContext.getAttribLocation(selectProgram, 'a_position');
     let uniformCol = this.glContext.getUniformLocation(selectProgram, 'u_fragColor');
@@ -96,6 +97,7 @@ export default class GLObject {
 
   draw() {
     this.calculateProjMat();
+    this.bindBuffer();
     this.glContext.useProgram(this.shaderProgram);
     // get any attr and uniform from glsl
     let vertexPos = this.glContext.getAttribLocation(this.shaderProgram, 'a_position');
