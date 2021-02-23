@@ -88,38 +88,6 @@ export default {
     // using the texture and depth buffer with frame buffer
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
-
-    // const triangleData = [
-    //   // X , Y
-    //   0.0, 0.0,
-    //   100.0, 0.0,
-    //   0.0, 100.0,
-    //   0.0, 100.0,
-    //   100.0, 100.0,
-    //   100.0, 0.0
-    // ]
-
-    // const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-    // ob1.setVertexArr(triangleData);
-    // ob1.setTranslatePoint(-1.0,-1.0);
-    // ob1.setRotateDegree(0);
-    // ob1.setScaleSize(1.0,1.0);
-    // ob1.setColorVector(1.0, 1.0, 0.0, 1.0);
-    // ob1.bindBuffer();
-
-    // const ob2 = new GLObject(2, this.shaderProgram, this.gl);
-    // ob2.setVertexArr(triangleData);
-    // ob2.setTranslatePoint(0.0,0.0);
-    // ob2.setRotateDegree(0);
-    // ob2.setScaleSize(1.0,1.0);
-    // ob2.setColorVector(1.0, 1.0, 0.0, 1.0);
-    // ob2.bindBuffer();
-
-    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-    // this.addObject(ob1);
-    // ob1.setTranslatePoint(400,600);
-    // this.addObject(ob2);
   },
   methods: {
     clearCanvas() {
@@ -179,7 +147,7 @@ export default {
 
       // search id
       const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-      console.log(id);
+
 
       // erase frame buffer
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -187,6 +155,12 @@ export default {
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
       this.render();
+
+      // return object
+      console.log(`Object ID ${id}`);
+      if(id >=0 ) {
+        return this.glToRender[id];
+      }
     }
   },
   watch: {
