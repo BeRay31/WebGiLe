@@ -1,11 +1,11 @@
 // import squareObject from './square'
 
-const getMouseCoordinates = (e, canvas) => 
+const getMouseCoordinates = (e, canvas, gl) => 
 {
     const bound = canvas.getBoundingClientRect();
       const mouseCoordinates = {
-        x: e.clientX - bound.left,
-        y: e.clientY - bound.top
+        x: (e.clientX - bound.left) * gl.canvas.width / canvas.clientWidth,
+        y: this.gl.canvas.height - (e.clientY - bound.top) * gl.canvas.height / canvas.clientHeight - 1
       }
       console.log(mouseCoordinates.x, mouseCoordinates.y);
 
@@ -15,8 +15,8 @@ const getMouseCoordinates = (e, canvas) =>
 const getPositionDelta = (pos1, pos2) =>
 {
     const delta = {
-        x: pos1.x - pos2.x,
-        y: pos1.x - pos2.y
+        x: pos2.x - pos1.x,
+        y: pos2.x - pos1.y
     }
 
     return delta;
@@ -38,7 +38,7 @@ export default class Editor
             // Add validation later
             this.canvas.addEventListener("mouseclick", e =>
             {
-                this.points.push(getMouseCoordinates(e, this.canvas));
+                this.points.push(getMouseCoordinates(e, this.canvas, this.glContext));
             }
             )
             console.log("Added point");
@@ -70,20 +70,23 @@ export default class Editor
     }
 
     // On key down
-    selectObject(object)
+    selectObject(object, mousePos)
     {
         this.clearPoints();
-        this.addPoints(1);
+        this.points.push(mousePos); // prevmouse
+        this.points.push(mousePos); // currmouse
         this.object = object;
     }
 
     // On key down + on mouse move 
     // assumes an object is selected
-    moveObject()
+    moveObject(mousePos)
     {
-        this.addPoints(1);
+        this.points[1] = mousePos; // set currentmouse
         var delta = getPositionDelta(this.points[0], this.points[1])
         this.object.setTranslatePoint(delta.x, delta.y);
+
+        this.points[0] = mousePos; // set currentmouse to prev mouse
     }
 
     // On key up
