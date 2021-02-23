@@ -99,8 +99,6 @@ export default {
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-    // this.editor = new Editor(this.canvas, this.gl);
   },
   methods: {
     clearCanvas() {
@@ -264,5 +262,11 @@ export default {
 <style lang="scss" scoped>
 .canvas-container {
   border: solid 1px black;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  canvas {
+    width: 80%;
+  }
 }
 </style>
