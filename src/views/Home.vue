@@ -6,20 +6,23 @@
         id="webGL"
         width="1280px"
         @mousemove="updateMouse"
-        @click="inspectObject"
+        @mousedown="mouseDown = true"
+        @mouseup="mouseUpHandler"
+        @click="onClickHandler"
         height="720px"
       >
       </canvas>
     </div>
 
     <div class="menu-container">
-      <button id="create-line">LINE</button>
-      <button id="create-square">SQUARE</button>
-      <button id="create-polygon">POLYGON</button>
-      <button id="select-object">SELECT</button>
+      <button id="create-line" @click="selectFeature(`line`)">LINE</button>
+      <button id="create-square" @click="selectFeature(`square`)">SQUARE</button>
+      <button id="create-polygon" @click="selectFeature(`polygon`)">POLYGON</button>
+      <button id="select-object" @click="selectFeature(`select`)">SELECT</button>
       <button id="file-save">SAVE</button>
       <button id="file-open">OPEN FILE</button>
     </div>
+    <h2>{{ currentFeature }}</h2>
 
   </div>
 </template>
@@ -43,7 +46,12 @@ export default {
       mousePos: {
         x: 0,
         y: 0
-      }
+      },
+      selectedObject: null,
+      pointArr: null,
+      mouseDown: false,
+      currentFeature: null,
+      lineObject: null,
     }
   },
   mounted() {
@@ -116,7 +124,7 @@ export default {
     },
     createObject() {
       const newObj = new GLObject(this.itemCount, this.shaderProgram, this.gl);
-      this.addObject(newObj)
+      return newObj;
     },
     updateMouse(e) {
       const bound = this.canvas.getBoundingClientRect();
@@ -125,7 +133,6 @@ export default {
         y: e.clientY - bound.top
       }
       this.mousePos = newMouse;
-      console.log(newMouse.x, newMouse.y);
     },
     inspectObject() {      
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
@@ -159,13 +166,62 @@ export default {
       // return object
       console.log(`Object ID ${id}`);
       if(id >=0 ) {
-        return this.glToRender[id];
+        this.selectedObject = this.glToRender[id];
       }
+    },
+    selectFeature(e) {
+      if(this.currentFeature === e) {
+        this.pointArr = null;
+      }
+      this.pointArr = [];
+      this.selectedObject = null;
+      this.currentFeature = null;
+      this.lineObject = null;
+      this.currentFeature = e;
+    },
+    onClickHandler() {
+      switch (this.currentFeature) {
+        case 'line':
+          this.pointArr.push(...Object.values(this.mousePos));
+          break;
+        case 'point':
+          break;
+        case 'square':
+          break;
+        case 'select':
+          this.inspectObject();
+          alert(`You got GLObect with Id ${this.selectedObject}`);
+          break;        
+        default:
+          console.log("NOTHING HEHE");
+          break;
+      }
+    },
+    mouseUpHandler() {
+      this.mouseDown = false;
     }
+
   },
   watch: {
     itemCount() {
       this.render();
+    },
+    mousePos() {
+      if(this.mouseDown && this.currentFeature === 'line') {
+        if(this.pointArr.length > 2) {
+          this.pointArr = [this.pointArr[0], this.pointArr[1]];
+          this.glToRender.delete(this.itemCount-1);
+          this.pointArr.push(...Object.values(this.mousePos));
+        } else {
+          this.pointArr.push(...Object.values(this.mouseDown));
+        }
+        console.log(this.pointArr);
+        const line = this.createObject();
+        line.setVertexArr(this.pointArr);
+        line.bindBuffer();
+        line.setRenderType(this.gl.LINES);
+        this.addObject(line);
+      }
     }
   }
 };
