@@ -52,7 +52,8 @@ export default {
       pointArr: null,
       mouseDown: false,
       currentFeature: null,
-      lineObject: null,
+      tempRenderedObject: null,
+      numCurrVertex: 0
     }
   },
   mounted() {
@@ -101,22 +102,23 @@ export default {
 
     this.editor = new Editor(this.canvas, this.gl);
     const triangleData = [
-          // X , Y
-          0.0, 0.0,
-          100.0, 0.0,
-          0.0, 100.0,
-        ]
+      // X , Y
+      500.0, 500.0,
+      500.0, 600.0,
+      600.0, 600.0,
+      600.0, 500.0
+    ]
 
-      const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-      ob1.setVertexArr(triangleData);
-      ob1.setTranslatePoint(-1.0,-1.0);
-      ob1.setRotateDegree(0);
-      ob1.setScaleSize(1.0,1.0);
-      ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
-      ob1.bindBuffer();
+    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+    ob1.setVertexArr(triangleData);
+    ob1.setTranslatePoint(-1.0,-1.0);
+    ob1.setRotateDegree(0);
+    ob1.setScaleSize(1.0,1.0);
+    ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
+    ob1.setRenderType(this.gl.TRIANGLE_FAN)
 
-      this.addObject(ob1);
-      this.render();
+    this.addObject(ob1);
+    this.render();
   },
   methods: {
     clearCanvas() {
@@ -140,6 +142,8 @@ export default {
       }
     },
     renderTexture() {
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
+      this.clearCanvas();
       for(const obj of this.glToRender) {
         obj.drawSelect(this.selectProgram);
       }
@@ -198,35 +202,14 @@ export default {
     },
     selectFeature(e) {
       if(this.currentFeature == e) {
-        this.pointArr = null;
+        this.currentFeature = null;
       }
       this.pointArr = new Array();
       this.selectedObject = null;
-      this.currentFeature = null;
-      this.lineObject = null;
+      this.tempRenderedObject = null;
       this.currentFeature = e;
     },
     onClickHandler() {
-      // const triangleData = [
-      //     // X , Y
-      //     0.0, 0.0,
-      //     100.0, 0.0,
-      //     0.0, 100.0,
-      //     0.0, 100.0,
-      //     100.0, 100.0,
-      //     100.0, 0.0
-      //   ]
-
-      //   const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-      //   ob1.setVertexArr(triangleData);
-      //   ob1.setTranslatePoint(-1.0,-1.0);
-      //   ob1.setRotateDegree(0);
-      //   ob1.setScaleSize(1.0,1.0);
-      //   ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
-      //   ob1.bindBuffer();
-
-      //   this.addObject(ob1);
-      //   this.render();
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
@@ -234,6 +217,9 @@ export default {
         case 'point':
           break;
         case 'square':
+          this.pointArr.push(...Object.values(this.mousePos));
+          break;
+        case 'polygon':
           break;
         case 'select':
           this.inspectObject();
@@ -246,11 +232,81 @@ export default {
     },
     mouseUpHandler() {
       this.mouseDown = false;
-      this.pointArr = new Array(); 
-      this.selectedObject = null; 
-      this.currentFeature = null; 
-      this.lineObject = null;
+      if(this.currentFeature == 'line' || this.currentFeature == 'square') {
+        this.pointArr = new Array(); 
+        this.selectedObject = null; 
+        this.currentFeature = null; 
+        this.tempRenderedObject = null;
+      }
+      if(this.currentFeature == 'polygon'){
+        this.pointArr.push(...Object.values(this.mousePos));
+      }
       this.editor.releaseObject();
+    },
+    drawLine(value) {
+      if(this.pointArr.length > 2) {
+        this.pointArr = [this.pointArr[0], this.pointArr[1]];
+        this.pointArr.push(...Object.values(value));
+      } else {
+        this.pointArr.push(...Object.values(value));
+      }
+      if(!this.tempRenderedObject) {
+        this.tempRenderedObject = this.createObject();
+        this.tempRenderedObject.setVertexArr([...this.pointArr]);	
+        this.tempRenderedObject.setRenderType(this.gl.LINES);	
+        this.tempRenderedObject.setColorVector(0.5, 0.5, 1, 1);
+        this.addObject(this.tempRenderedObject);
+      } else {
+        this.tempRenderedObject.setVertexArr([...this.pointArr]);	
+        this.tempRenderedObject.setRenderType(this.gl.LINES);	
+        this.render();
+      }
+    },
+    drawSquare(value) {
+      let squareVertex = [];
+      if(this.pointArr.length > 2) {
+        this.pointArr = [this.pointArr[0], this.pointArr[1]];
+        this.pointArr.push(...Object.values(value));
+      } else {
+        this.pointArr.push(...Object.values(value));
+      }
+      // compute square arr
+      const x = this.pointArr[0];
+      const y = this.pointArr[1];
+      const a = this.pointArr[2];
+      const b = this.pointArr[3];
+      squareVertex = [
+        x, y,
+        x, b,
+        a, b,
+        a, y
+      ]
+      if(!this.tempRenderedObject) {
+        this.tempRenderedObject = this.createObject();
+        this.tempRenderedObject.setVertexArr([...squareVertex]);	
+        this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
+        this.tempRenderedObject.setColorVector(0.5, 0.5, 0, 1);
+        this.addObject(this.tempRenderedObject);
+      } else {
+        this.tempRenderedObject.setVertexArr([...squareVertex]);	
+        this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
+        this.render();
+      }
+    },
+    drawPolygon(value) {
+      const vertexArr = [...this.pointArr];
+      vertexArr.push(...Object.values(value));
+      if(!this.tempRenderedObject) {
+        this.tempRenderedObject = this.createObject();
+        this.tempRenderedObject.setVertexArr([...vertexArr]);	
+        this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
+        this.tempRenderedObject.setColorVector(0.5, 0.0, 0.5, 1);
+        this.addObject(this.tempRenderedObject);
+      } else {
+        this.tempRenderedObject.setVertexArr([...vertexArr]);	
+        this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
+        this.render();
+      }
     }
   },
   watch: {
@@ -258,24 +314,19 @@ export default {
       this.render();
     },
     mousePos(value) {
-      if(this.mouseDown && this.currentFeature == 'line') {
-        if(this.pointArr.length > 2) {
-          this.pointArr = [this.pointArr[0], this.pointArr[1]];
-          this.pointArr.push(...Object.values(value));
-        } else {
-          this.pointArr.push(...Object.values(value));
-        }
-        if(!this.lineObject) {
-          this.lineObject = this.createObject();
-          this.lineObject.setVertexArr([...this.pointArr]);	
-          this.lineObject.setRenderType(this.gl.LINES);	
-          this.lineObject.bindBuffer();
-          this.addObject(this.lineObject);
-        } else {
-          this.lineObject.setVertexArr([...this.pointArr]);	
-          this.lineObject.setRenderType(this.gl.LINES);	
-          this.lineObject.bindBuffer();	
-          this.render();
+      if(this.mouseDown) {
+        switch (this.currentFeature) {
+          case 'line':
+            this.drawLine(value);
+            break;
+          case 'square':
+            this.drawSquare(value);
+            break;
+          case 'polygon':
+            this.drawPolygon(value);
+            break;
+          default:
+            break;
         }
       }
     }
