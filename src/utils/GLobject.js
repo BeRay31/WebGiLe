@@ -117,7 +117,7 @@ export default class GLObject {
     
     this.glContext.uniform4f(colorFrag, 0.0, 1.0, 0, 1.0);
     this.glContext.lineWidth(5);
-    // this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
+    this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
   }
 
 }
