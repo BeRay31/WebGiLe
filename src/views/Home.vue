@@ -171,16 +171,12 @@ export default {
       this.gl.uniform2f(resolutionPos, this.gl.canvas.width, this.gl.canvas.height);
 
       this.renderTexture(this.selectProgram);
-      // pixel X val
-      const pixelX = this.mousePos.x * this.gl.canvas.width / this.canvas.clientWidth;
-      const pixelY = this.gl.canvas.height - this.mousePos.y * this.gl.canvas.height / this.canvas.clientHeight - 1;
 
       const data = new Uint8Array(4);
-      this.gl.readPixels(pixelX, pixelY, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+      this.gl.readPixels(this.mousePos.x , this.mousePos.y, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
 
       // search id
       const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-
 
       // erase frame buffer
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -223,7 +219,7 @@ export default {
           break;
         case 'select':
           this.inspectObject();
-          alert(`You got GLObect with Id ${this.selectedObject}`);
+          alert(`You got GLObect with Id ${this.selectedObject.id}`);
           break;        
         default:
           console.log("NOTHING HEHE");
