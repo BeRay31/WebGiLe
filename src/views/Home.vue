@@ -4,9 +4,9 @@
     <div class="canvas-container">
       <canvas 
         id="webGL"
-        @click="simpleConsole"
-        @dblclick="doubleConsole"
         width="1280px"
+        @mousemove="updateMouse"
+        @click="inspectObject"
         height="720px"
       >
 
@@ -17,7 +17,7 @@
 
 <script>
 
-import createShaders from '@/utils/shaders';
+import { createProgramShader, createSelectShader } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
 
 export default {
@@ -27,28 +27,68 @@ export default {
       canvas: null,
       gl: null,
       shaderProgram: null,
+      selectProgram: null,
       glToRender: new Array(),
-      itemCount: 0
+      itemCount: 0,
+      frameBuffer: null,
+      mousePos: {
+        x: 0,
+        y: 0
+      }
     }
   },
   mounted() {
     this.canvas = document.getElementById('webGL');
     this.gl = this.canvas.getContext('webgl2');
-    //  setup shader  
-    const shaderProgram = createShaders(this.gl);
-    this.gl.useProgram(shaderProgram);
+    //  setup program shader  
+    const shaderProgram = createProgramShader(this.gl);
+    // setup select shader
+    const selectProgram = createSelectShader(this.gl);
+
     this.shaderProgram = shaderProgram;
+    this.selectProgram = selectProgram;
+    // use program
+    this.gl.useProgram(shaderProgram);
+    // adjust view port 
+    this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
+    const u_resolution = this.gl.getUniformLocation(shaderProgram, 'u_resolution')
+    this.gl.uniform2f(u_resolution, this.gl.canvas.width, this.gl.canvas.height)
+    // texture buffer
+    const textureBuffer = this.gl.createTexture();
+    this.gl.bindTexture(this.gl.TEXTURE_2D, textureBuffer);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+    // depth buffer
+    const depthBuffer = this.gl.createRenderbuffer();
+    this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, depthBuffer);
+    const setFrameBufferAttatchmentSizes = (width, height) => {
+      this.gl.bindTexture(this.gl.TEXTURE_2D, textureBuffer);
+      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+      this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, depthBuffer);
+      this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_COMPONENT16, width, height);
+    };
+    setFrameBufferAttatchmentSizes(this.gl.canvas.width, this.gl.canvas.height);
+    // frame buffer
+    const frameBuffer = this.gl.createFramebuffer();
+    this.frameBuffer = frameBuffer;
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, frameBuffer);
+    const attachmentPoint = this.gl.COLOR_ATTACHMENT0;
+    const lvl = 0;
+    // put it all together
+    // using the texture and depth buffer with frame buffer
+    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
+    this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
 
     const triangleData = [
       // X , Y
       0.0, 0.0,
-      1.0, 0.0,
-      0.0, 1.0,
-      0.0, 1.0,
-      1.0, 1.0,
-      1.0, 0.0
+      100.0, 0.0,
+      0.0, 100.0,
+      0.0, 100.0,
+      100.0, 100.0,
+      100.0, 0.0
     ]
-
 
     const ob1 = new GLObject(0, this.shaderProgram, this.gl);
     ob1.setVertexArr(triangleData);
@@ -58,7 +98,7 @@ export default {
     ob1.setColorVector(1.0, 1.0, 0.0, 1.0);
     ob1.bindBuffer();
 
-    const ob2 = new GLObject(0, this.shaderProgram, this.gl);
+    const ob2 = new GLObject(2, this.shaderProgram, this.gl);
     ob2.setVertexArr(triangleData);
     ob2.setTranslatePoint(0.0,0.0);
     ob2.setRotateDegree(0);
@@ -66,8 +106,13 @@ export default {
     ob2.setColorVector(1.0, 0.0, 0.0, 1.0);
     ob2.bindBuffer();
 
-    this.addObject(ob1)
-    this.addObject(ob2)
+
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+
+    this.addObject(ob1);
+    ob1.setTranslatePoint(400,600);
+    this.addObject(ob2);
   },
   methods: {
     clearCanvas() {
@@ -84,13 +129,56 @@ export default {
     },
     render() {
       this.clearCanvas();
+      this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
       for(const obj of this.glToRender) {
-        obj.draw()
+        obj.draw();
+      }
+    },
+    renderTexture() {
+      for(const obj of this.glToRender) {
+        obj.drawSelect(this.selectProgram);
       }
     },
     createObject() {
       const newObj = new GLObject(this.itemCount, this.shaderProgram, this.gl);
       this.addObject(newObj)
+    },
+    updateMouse(e) {
+      const bound = this.canvas.getBoundingClientRect();
+      const newMouse = {
+        x: e.clientX - bound.left,
+        y: e.clientY - bound.top
+      }
+      this.mousePos = newMouse;
+    },
+    inspectObject() {      
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
+
+      this.gl.enable(this.gl.DEPTH_TEST);
+      this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+
+      this.gl.useProgram(this.selectProgram);
+      const resolutionPos = this.gl.getUniformLocation(this.selectProgram, 'u_resolution');
+      this.gl.uniform2f(resolutionPos, this.gl.canvas.width, this.gl.canvas.height);
+
+      this.renderTexture(this.selectProgram);
+      // pixel X val
+      const pixelX = this.mousePos.x * this.gl.canvas.width / this.canvas.clientWidth;
+      const pixelY = this.gl.canvas.height - this.mousePos.y * this.gl.canvas.height / this.canvas.clientHeight - 1;
+
+      const data = new Uint8Array(4);
+      this.gl.readPixels(pixelX, pixelY, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+
+      // search id
+      const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+      console.log(id);
+
+      // erase frame buffer
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+      // use the programShader
+      this.gl.useProgram(this.shaderProgram);
+      this.render();
     }
   },
   watch: {

@@ -74,6 +74,25 @@ export default class GLObject {
     this.glContext.bufferData(this.glContext.ARRAY_BUFFER, new Float32Array(this.vertexArr), this.glContext.STATIC_DRAW); // set array buffer data to float array and context usage to static draw 
   }
 
+  drawSelect(selectProgram) {
+    this.calculateProjMat();
+    this.glContext.useProgram(selectProgram);
+    let vertexPos = this.glContext.getAttribLocation(selectProgram, 'a_position');
+    let uniformCol = this.glContext.getUniformLocation(selectProgram, 'u_fragColor');
+    let uniformPos = this.glContext.getUniformLocation(selectProgram, 'u_proj_mat');
+    this.glContext.uniformMatrix3fv(uniformPos, false, this.projectionMat)
+    this.glContext.vertexAttribPointer(vertexPos, 2, this.glContext.FLOAT, false, 0, 0);
+    this.glContext.enableVertexAttribArray(vertexPos);
+    const uniformId = [
+      ((this.id >> 0) & 0xFF) / 0xFF,
+      ((this.id >> 8) & 0xFF) / 0xFF,
+      ((this.id >> 16) & 0xFF) / 0xFF,
+      ((this.id >> 24) & 0xFF) / 0xFF,
+    ]
+    this.glContext.uniform4fv(uniformCol, uniformId);
+    this.glContext.drawArrays(this.renderType, 0, this.vertexArr.length/2);
+  }
+
   draw() {
     this.calculateProjMat();
     this.glContext.useProgram(this.shaderProgram);
