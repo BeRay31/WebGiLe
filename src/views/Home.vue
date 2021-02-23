@@ -31,7 +31,7 @@
 
 import { createProgramShader, createSelectShader } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
-import Editor from '@/utils/editor';
+// import Editor from '@/utils/editor';
 
 export default {
   name: "WebGLCanvas",
@@ -97,29 +97,9 @@ export default {
     // using the texture and depth buffer with frame buffer
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 
-    const triangleData = [
-      // X , Y
-      0.0, 0.0,
-      100.0, 0.0,
-      0.0, 100.0,
-      0.0, 100.0,
-      100.0, 100.0,
-      100.0, 0.0
-    ]
-
-    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-    ob1.setVertexArr(triangleData);
-    ob1.setTranslatePoint(-1.0,-1.0);
-    ob1.setRotateDegree(0);
-    ob1.setScaleSize(1.0,1.0);
-    ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
-    ob1.bindBuffer();
-
-    this.addObject(ob1);
-    this.render();
-
-    this.editor = new Editor(this.canvas, this.gl);
+    // this.editor = new Editor(this.canvas, this.gl);
   },
   methods: {
     clearCanvas() {
@@ -135,6 +115,7 @@ export default {
       this.itemCount--;
     },
     render() {
+      this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
       this.clearCanvas();
       this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
       for(const obj of this.glToRender) {
@@ -153,8 +134,8 @@ export default {
     updateMouse(e) {
       const bound = this.canvas.getBoundingClientRect();
       const newMouse = {
-        x: e.clientX - bound.left,
-        y: e.clientY - bound.top
+        x: (e.clientX - bound.left) * this.gl.canvas.width / this.canvas.clientWidth,
+        y: this.gl.canvas.height - (e.clientY - bound.top) * this.gl.canvas.height / this.canvas.clientHeight - 1
       }
       this.mousePos = newMouse;
     },
@@ -204,6 +185,26 @@ export default {
       this.currentFeature = e;
     },
     onClickHandler() {
+      // const triangleData = [
+      //     // X , Y
+      //     0.0, 0.0,
+      //     100.0, 0.0,
+      //     0.0, 100.0,
+      //     0.0, 100.0,
+      //     100.0, 100.0,
+      //     100.0, 0.0
+      //   ]
+
+      //   const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+      //   ob1.setVertexArr(triangleData);
+      //   ob1.setTranslatePoint(-1.0,-1.0);
+      //   ob1.setRotateDegree(0);
+      //   ob1.setScaleSize(1.0,1.0);
+      //   ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
+      //   ob1.bindBuffer();
+
+      //   this.addObject(ob1);
+      //   this.render();
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
@@ -224,27 +225,27 @@ export default {
     mouseUpHandler() {
       this.mouseDown = false;
     }
-
   },
   watch: {
     itemCount() {
       this.render();
     },
-    mousePos() {
+    mousePos(value) {
       if(this.mouseDown && this.currentFeature === 'line') {
         if(this.pointArr.length > 2) {
           this.pointArr = [this.pointArr[0], this.pointArr[1]];
-          this.glToRender.delete(this.itemCount-1);
-          this.pointArr.push(...Object.values(this.mousePos));
+          this.pointArr.push(...Object.values(value));
         } else {
-          this.pointArr.push(...Object.values(this.mouseDown));
+          this.pointArr.push(...Object.values(value));
         }
-        console.log(this.pointArr);
-        const line = this.createObject();
-        line.setVertexArr(this.pointArr);
-        line.bindBuffer();
-        line.setRenderType(this.gl.LINES);
-        this.addObject(line);
+        if(!this.lineObject) {
+          this.lineObject = this.createObject();
+          this.addObject(this.lineObject);
+        }
+        this.lineObject.setVertexArr(this.pointArr);
+        this.lineObject.setRenderType(this.gl.LINES);
+        this.lineObject.bindBuffer();
+        this.render();
       }
     }
   }
