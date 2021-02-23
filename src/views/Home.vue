@@ -99,6 +99,27 @@ export default {
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
     this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+
+          const triangleData = [
+          // X , Y
+          0.0, 0.0,
+          100.0, 0.0,
+          0.0, 100.0,
+          0.0, 100.0,
+          100.0, 100.0,
+          100.0, 0.0
+        ]
+
+        const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+        ob1.setVertexArr(triangleData);
+        ob1.setTranslatePoint(-1.0,-1.0);
+        ob1.setRotateDegree(0);
+        ob1.setScaleSize(1.0,1.0);
+        ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
+        ob1.bindBuffer();
+
+        this.addObject(ob1);
+        this.render();
   },
   methods: {
     clearCanvas() {
@@ -149,26 +170,21 @@ export default {
       this.gl.uniform2f(resolutionPos, this.gl.canvas.width, this.gl.canvas.height);
 
       this.renderTexture(this.selectProgram);
-      // pixel X val
-      const pixelX = this.mousePos.x * this.gl.canvas.width / this.canvas.clientWidth;
-      const pixelY = this.gl.canvas.height - this.mousePos.y * this.gl.canvas.height / this.canvas.clientHeight - 1;
 
       const data = new Uint8Array(4);
-      this.gl.readPixels(pixelX, pixelY, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+      this.gl.readPixels(this.mousePos.x, this.mousePos.y, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
 
       // search id
       const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-
+      console.log(id)
 
       // erase frame buffer
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
-      this.render();
 
       // return object
-      console.log(`Object ID ${id}`);
       if(id >=0 ) {
         this.selectedObject = this.glToRender[id];
       }
@@ -194,7 +210,8 @@ export default {
           break;
         case 'select':
           this.inspectObject();
-          alert(`You got GLObect with Id ${this.selectedObject}`);
+          alert(`You got GLObect with Id ${this.selectedObject.id}`);
+          this.currentFeature = null;
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -203,10 +220,12 @@ export default {
     },
     mouseUpHandler() {
       this.mouseDown = false;
-      this.pointArr = new Array();
-      this.selectedObject = null;
-      this.currentFeature = null;
-      this.lineObject = null;
+      if(this.currentFeature == 'line') {
+        this.pointArr = new Array();
+        this.selectedObject = null;
+        this.lineObject = null;
+        this.currentFeature = null;
+      }
     }
   },
   watch: {
@@ -225,12 +244,10 @@ export default {
           this.lineObject = this.createObject();
           this.lineObject.setVertexArr([...this.pointArr]);
           this.lineObject.setRenderType(this.gl.LINES);
-          this.lineObject.bindBuffer();
           this.addObject(this.lineObject);
         } else {
           this.lineObject.setVertexArr([...this.pointArr]);
           this.lineObject.setRenderType(this.gl.LINES);
-          this.lineObject.bindBuffer();
           this.render();
         }
       }
