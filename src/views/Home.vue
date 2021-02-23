@@ -31,6 +31,7 @@
 
 import { createProgramShader, createSelectShader } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
+import Editor from '@/utils/editor';
 
 export default {
   name: "WebGLCanvas",
@@ -96,6 +97,29 @@ export default {
     // using the texture and depth buffer with frame buffer
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
+
+    const triangleData = [
+      // X , Y
+      0.0, 0.0,
+      100.0, 0.0,
+      0.0, 100.0,
+      0.0, 100.0,
+      100.0, 100.0,
+      100.0, 0.0
+    ]
+
+    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+    ob1.setVertexArr(triangleData);
+    ob1.setTranslatePoint(-1.0,-1.0);
+    ob1.setRotateDegree(0);
+    ob1.setScaleSize(1.0,1.0);
+    ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
+    ob1.bindBuffer();
+
+    this.addObject(ob1);
+    this.render();
+
+    this.editor = new Editor(this.canvas, this.gl);
   },
   methods: {
     clearCanvas() {
