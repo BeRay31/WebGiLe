@@ -68,8 +68,7 @@ export default {
       pointArr: null,
       mouseDown: false,
       currentFeature: null,
-      tempRenderedObject: null,
-      numCurrVertex: 0
+      tempRenderedObject: null
     }
   },
   mounted() {
@@ -190,8 +189,8 @@ export default {
           break;
         case 'select':
           this.inspectObject();
+          this.pointArr = new Array();
           this.pointArr.push(this.mousePos); // initial point
-          // alert(`You got GLObect with Id ${this.selectedObject.id} on position ${this.mousePos.x} ${this.mousePos.y}`);
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -200,14 +199,18 @@ export default {
     },
     mouseUpHandler() {
       this.mouseDown = false;
-      if(this.currentFeature == 'line' || this.currentFeature == 'square') {
+      if(this.currentFeature == 'line' ||
+        this.currentFeature == 'square'
+      ) {
         this.pointArr = new Array(); 
         this.selectedObject = null; 
         this.currentFeature = null; 
         this.tempRenderedObject = null;
-      }
-      if(this.currentFeature == 'polygon'){
+      } else if(this.currentFeature == 'polygon'){
         this.pointArr.push(...Object.values(this.mousePos));
+      } else if(this.currentFeature == 'select') {
+        this.selectedObject = null;
+        this.pointArr = new Array();
       }
       this.editor.releaseObject();
     },
@@ -281,7 +284,6 @@ export default {
       pointArr.push(value);
       const deltaX = pointArr[1].x - pointArr[0].x;
       const deltaY = pointArr[1].y - pointArr[0].y;
-      console.log(deltaX, deltaY)
       this.selectedObject.setTranslatePoint(deltaX, deltaY);
       this.render();
     }
@@ -324,8 +326,8 @@ export default {
   border: solid 1px black;
 
   canvas {
-    width: 70%;
-    height: auto;
+    width: 100vw;
+    height: 80vh;
   }
 }
 
