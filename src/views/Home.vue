@@ -184,26 +184,6 @@ export default {
       this.currentFeature = e;
     },
     onClickHandler() {
-      // const triangleData = [
-      //     // X , Y
-      //     0.0, 0.0,
-      //     100.0, 0.0,
-      //     0.0, 100.0,
-      //     0.0, 100.0,
-      //     100.0, 100.0,
-      //     100.0, 0.0
-      //   ]
-
-      //   const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-      //   ob1.setVertexArr(triangleData);
-      //   ob1.setTranslatePoint(-1.0,-1.0);
-      //   ob1.setRotateDegree(0);
-      //   ob1.setScaleSize(1.0,1.0);
-      //   ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
-      //   ob1.bindBuffer();
-
-      //   this.addObject(ob1);
-      //   this.render();
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
