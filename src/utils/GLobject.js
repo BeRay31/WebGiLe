@@ -95,14 +95,14 @@ export default class GLObject {
 
   }
 
-  draw() {
+  draw(shaderProgram) {
     this.calculateProjMat();
     this.bindBuffer();
-    this.glContext.useProgram(this.shaderProgram);
+    this.glContext.useProgram(shaderProgram);
     // get any attr and uniform from glsl
-    let vertexPos = this.glContext.getAttribLocation(this.shaderProgram, 'a_position');
-    let matProj = this.glContext.getUniformLocation(this.shaderProgram, 'u_proj_mat');
-    let colorFrag = this.glContext.getUniformLocation(this.shaderProgram, 'u_fragColor');
+    let vertexPos = this.glContext.getAttribLocation(shaderProgram, 'a_position');
+    let matProj = this.glContext.getUniformLocation(shaderProgram, 'u_proj_mat');
+    let colorFrag = this.glContext.getUniformLocation(shaderProgram, 'u_fragColor');
     // https://webglfundamentals.org/webgl/lessons/webgl-attributes.html
     // https://stackoverflow.com/questions/26677685/what-is-the-purpose-of-vertexattribpointer
     this.glContext.vertexAttribPointer(vertexPos, 2, this.glContext.FLOAT, false, 0, 0);

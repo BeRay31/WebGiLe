@@ -139,7 +139,7 @@ export default {
       this.clearCanvas();
       this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
       for(const obj of this.glToRender) {
-        obj.draw();
+        obj.draw(this.shaderProgram);
       }
     },
     renderTexture() {
