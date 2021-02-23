@@ -9,9 +9,18 @@
         @click="inspectObject"
         height="720px"
       >
-
       </canvas>
     </div>
+
+    <div class="menu-container">
+      <button id="create-line">LINE</button>
+      <button id="create-square">SQUARE</button>
+      <button id="create-polygon">POLYGON</button>
+      <button id="select-object">SELECT</button>
+      <button id="file-save">SAVE</button>
+      <button id="file-open">OPEN FILE</button>
+    </div>
+
   </div>
 </template>
 
@@ -80,39 +89,37 @@ export default {
     this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
     this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
 
-    const triangleData = [
-      // X , Y
-      0.0, 0.0,
-      100.0, 0.0,
-      0.0, 100.0,
-      0.0, 100.0,
-      100.0, 100.0,
-      100.0, 0.0
-    ]
+    // const triangleData = [
+    //   // X , Y
+    //   0.0, 0.0,
+    //   100.0, 0.0,
+    //   0.0, 100.0,
+    //   0.0, 100.0,
+    //   100.0, 100.0,
+    //   100.0, 0.0
+    // ]
 
-    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-    ob1.setVertexArr(triangleData);
-    ob1.setTranslatePoint(-1.0,-1.0);
-    ob1.setRotateDegree(0);
-    ob1.setScaleSize(1.0,1.0);
-    ob1.setColorVector(1.0, 1.0, 0.0, 1.0);
-    ob1.bindBuffer();
+    // const ob1 = new GLObject(0, this.shaderProgram, this.gl);
+    // ob1.setVertexArr(triangleData);
+    // ob1.setTranslatePoint(-1.0,-1.0);
+    // ob1.setRotateDegree(0);
+    // ob1.setScaleSize(1.0,1.0);
+    // ob1.setColorVector(1.0, 1.0, 0.0, 1.0);
+    // ob1.bindBuffer();
 
-    const ob2 = new GLObject(2, this.shaderProgram, this.gl);
-    ob2.setVertexArr(triangleData);
-    ob2.setTranslatePoint(0.0,0.0);
-    ob2.setRotateDegree(0);
-    ob2.setScaleSize(1.0,1.0);
-    ob2.setColorVector(1.0, 0.0, 0.0, 1.0);
-    ob2.bindBuffer();
+    // const ob2 = new GLObject(2, this.shaderProgram, this.gl);
+    // ob2.setVertexArr(triangleData);
+    // ob2.setTranslatePoint(0.0,0.0);
+    // ob2.setRotateDegree(0);
+    // ob2.setScaleSize(1.0,1.0);
+    // ob2.setColorVector(1.0, 1.0, 0.0, 1.0);
+    // ob2.bindBuffer();
 
+    // this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-
-
-    this.addObject(ob1);
-    ob1.setTranslatePoint(400,600);
-    this.addObject(ob2);
+    // this.addObject(ob1);
+    // ob1.setTranslatePoint(400,600);
+    // this.addObject(ob2);
   },
   methods: {
     clearCanvas() {
@@ -150,6 +157,7 @@ export default {
         y: e.clientY - bound.top
       }
       this.mousePos = newMouse;
+      console.log(newMouse.x, newMouse.y);
     },
     inspectObject() {      
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
