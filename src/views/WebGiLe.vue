@@ -1,37 +1,53 @@
 <template>
   <div class="home" onload="InitDemo()">
-    <h1>GL CANVAS</h1>
+    <h1>WEB GiLe CanVas</h1>
     <div class="canvas-container">
       <canvas 
         id="webGL"
         width="1280px"
-        @mousemove="updateMouse"
-        @mousedown="mouseDown = true"
-        @mouseup="mouseUpHandler"
-        @click="onClickHandler"
         height="720px"
+        @mousemove="updateMouse"
+        @mousedown="mouseDownHandler"
+        @mouseup="mouseUpHandler"
       >
       </canvas>
     </div>
 
     <div class="menu-container">
-      <button id="create-line" @click="selectFeature(`line`)">LINE</button>
-      <button id="create-square" @click="selectFeature(`square`)">SQUARE</button>
-      <button id="create-polygon" @click="selectFeature(`polygon`)">POLYGON</button>
-      <button id="select-object" @click="selectFeature(`select`)">SELECT</button>
-      <button id="file-save">SAVE</button>
-      <button id="file-open">OPEN FILE</button>
+      <div 
+        class="btn"
+        :class="[currentFeature == 'line' ? 'btn-secondary' : 'btn-secondary--alt']" 
+        @click="selectFeature(`line`)">
+        LINE
+      </div>
+      <div 
+        class="btn btn-secondary" 
+        :class="[currentFeature == 'square' ? 'btn-secondary' : 'btn-secondary--alt']" 
+        @click="selectFeature(`square`)">
+        SQUARE
+      </div>
+      <div 
+        class="btn btn-secondary" 
+        :class="[currentFeature == 'polygon' ? 'btn-secondary' : 'btn-secondary--alt']" 
+        @click="selectFeature(`polygon`)">
+        POLYGON
+      </div>
+      <div 
+        class="btn btn-secondary" 
+        :class="[currentFeature == 'select' ? 'btn-secondary' : 'btn-secondary--alt']" 
+        @click="selectFeature(`select`)">
+        SELECT
+      </div>
     </div>
-    <h2>{{ currentFeature }}</h2>
 
   </div>
 </template>
 
 <script>
 
-import { createProgramShader, createSelectShader } from '@/utils/shaders';
+import { createProgramShader, createSelectShader, prepareFrameTexture } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
-import Editor from '@/utils/editor';
+// import Editor from '@/utils/editor';
 
 export default {
   name: "WebGLCanvas",
@@ -59,65 +75,21 @@ export default {
   mounted() {
     this.canvas = document.getElementById('webGL');
     this.gl = this.canvas.getContext('webgl2');
-    //  setup program shader  
+    //  setup shader  
     const shaderProgram = createProgramShader(this.gl);
-    // setup select shader
     const selectProgram = createSelectShader(this.gl);
-
     this.shaderProgram = shaderProgram;
     this.selectProgram = selectProgram;
-    // use program
-    this.gl.useProgram(shaderProgram);
+
+    this.gl.useProgram(this.shaderProgram);
     // adjust view port 
     this.gl.viewport(0,0, this.gl.canvas.width, this.gl.canvas.height);
-    const u_resolution = this.gl.getUniformLocation(shaderProgram, 'u_resolution')
-    this.gl.uniform2f(u_resolution, this.gl.canvas.width, this.gl.canvas.height)
-    // texture buffer
-    const textureBuffer = this.gl.createTexture();
-    this.gl.bindTexture(this.gl.TEXTURE_2D, textureBuffer);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
-    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
-    // depth buffer
-    const depthBuffer = this.gl.createRenderbuffer();
-    this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, depthBuffer);
-    const setFrameBufferAttatchmentSizes = (width, height) => {
-      this.gl.bindTexture(this.gl.TEXTURE_2D, textureBuffer);
-      this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, width, height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
-      this.gl.bindRenderbuffer(this.gl.RENDERBUFFER, depthBuffer);
-      this.gl.renderbufferStorage(this.gl.RENDERBUFFER, this.gl.DEPTH_COMPONENT16, width, height);
-    };
-    setFrameBufferAttatchmentSizes(this.gl.canvas.width, this.gl.canvas.height);
-    // frame buffer
-    const frameBuffer = this.gl.createFramebuffer();
-    this.frameBuffer = frameBuffer;
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, frameBuffer);
-    const attachmentPoint = this.gl.COLOR_ATTACHMENT0;
-    const lvl = 0;
-    // put it all together
-    // using the texture and depth buffer with frame buffer
-    this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, attachmentPoint, this.gl.TEXTURE_2D, textureBuffer, lvl);
-    this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, depthBuffer);
-    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+    const u_resolution = this.gl.getUniformLocation(this.shaderProgram, 'u_resolution');
+    this.gl.uniform2f(u_resolution, this.gl.canvas.width, this.gl.canvas.height);
+    // prepare frame buffer
+    this.frameBuffer = prepareFrameTexture(this.gl);
 
-    this.editor = new Editor(this.canvas, this.gl);
-    const triangleData = [
-      // X , Y
-      500.0, 500.0,
-      500.0, 600.0,
-      600.0, 600.0,
-      600.0, 500.0
-    ]
-
-    const ob1 = new GLObject(0, this.shaderProgram, this.gl);
-    ob1.setVertexArr(triangleData);
-    ob1.setTranslatePoint(-1.0,-1.0);
-    ob1.setRotateDegree(0);
-    ob1.setScaleSize(1.0,1.0);
-    ob1.setColorVector(1.0, 0.5, 1.0, 1.0);
-    ob1.setRenderType(this.gl.TRIANGLE_FAN)
-
-    this.addObject(ob1);
+    // this.editor = new Editor(this.canvas, this.gl);
     this.render();
   },
   methods: {
@@ -184,19 +156,16 @@ export default {
 
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
-      this.render();
 
-      this.editor.selectObject(this.glToRender[id], this.mousePos);
+      // this.editor.selectObject(this.glToRender[id], this.mousePos);
 
-      // return object
-      console.log(`Object ID ${id}`);
       if(id >=0 ) {
         this.selectedObject = this.glToRender[id];
       }
     },
-    dragObject() {
-      this.editor.moveObject(this.mousePos);
-    },
+    // dragObject() {
+    //   this.editor.moveObject(this.mousePos);
+    // },
     selectFeature(e) {
       if(this.currentFeature == e) {
         this.currentFeature = null;
@@ -206,21 +175,23 @@ export default {
       this.tempRenderedObject = null;
       this.currentFeature = e;
     },
-    onClickHandler() {
+    mouseDownHandler() {
+      this.mouseDown = true;
+
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
-          break;
-        case 'point':
           break;
         case 'square':
           this.pointArr.push(...Object.values(this.mousePos));
           break;
         case 'polygon':
+          // do nothing
           break;
         case 'select':
           this.inspectObject();
-          alert(`You got GLObect with Id ${this.selectedObject.id}`);
+          this.pointArr.push(this.mousePos); // initial point
+          // alert(`You got GLObect with Id ${this.selectedObject.id} on position ${this.mousePos.x} ${this.mousePos.y}`);
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -304,6 +275,15 @@ export default {
         this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
         this.render();
       }
+    },
+    moveObject(value) {
+      const pointArr = [...this.pointArr];
+      pointArr.push(value);
+      const deltaX = pointArr[1].x - pointArr[0].x;
+      const deltaY = pointArr[1].y - pointArr[0].y;
+      console.log(deltaX, deltaY)
+      this.selectedObject.setTranslatePoint(deltaX, deltaY);
+      this.render();
     }
   },
   watch: {
@@ -322,6 +302,9 @@ export default {
           case 'polygon':
             this.drawPolygon(value);
             break;
+          case 'select':
+            this.moveObject(value);
+            break;
           default:
             break;
         }
@@ -332,7 +315,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import './button';
+
 .canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: solid 1px black;
+
+  canvas {
+    width: 70%;
+    height: auto;
+  }
+}
+
+.menu-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 </style>

@@ -84,3 +84,35 @@ export function createSelectShader(gl) {
 
   return selectProgram;
 }
+
+export function prepareFrameTexture(gl) {
+  const textureBuffer = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+  // depth buffer
+  const depthBuffer = gl.createRenderbuffer();
+  gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+
+  const setFrameBufferAttatchmentSizes = (width, height) => {
+    gl.bindTexture(gl.TEXTURE_2D, textureBuffer);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.bindRenderbuffer(gl.RENDERBUFFER, depthBuffer);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+  };
+  setFrameBufferAttatchmentSizes(gl.canvas.width, gl.canvas.height);
+  // frame buffer
+  const frameBuffer = gl.createFramebuffer();
+  gl.bindFramebuffer(gl.FRAMEBUFFER, frameBuffer);
+  const attachmentPoint = gl.COLOR_ATTACHMENT0;
+  const lvl = 0;
+  // put it all together
+  // using the texture and depth buffer with frame buffer
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, textureBuffer, lvl);
+  gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthBuffer);
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  
+  return frameBuffer;
+}

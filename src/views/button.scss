@@ -1,0 +1,95 @@
+$light-orange: #ff8e3f;
+$fuschia: #f7ae3d;
+$button-bg: $fuschia;
+$button-text-color: #fff;
+$purple: #7250ec;
+
+.btn {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  transition: all 0.2s;
+  cursor: pointer;
+
+  p,
+  a {
+    // Handle bug when inside button is 'p' or 'a' tag, remove translate effect when hovering 'p' or 'a'
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  &.disabled,
+  &[disabled] {
+    filter: grayscale(10);
+    opacity: 0.5;
+    cursor: default;
+  }
+  &:not(.btn.disabled, .btn[disabled]):hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 5px rgba(black, 0.3);
+  }
+  &:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  &:focus {
+    outline: none;
+  }
+  &.btn-rounded-abs {
+    border-radius: 1rem !important;
+  }
+  &-round {
+    border-radius: 100px;
+  }
+
+  &-secondary {
+    background: $purple;
+    color: white;
+    &:not(:disabled):not(.disabled):active {
+      color: white;
+      background-color: $purple;
+      border-color: $purple;
+    }
+    &:not(.no-hover):hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 5px rgba($purple, 0.3);
+      &.btn.disabled,
+      &.btn[disabled] {
+        box-shadow: none;
+        transform: translateY(0);
+        &:not(.no-hover):hover {
+          background-color: $purple;
+          transform: translateY(-3px);
+          box-shadow: 0 5px 5px rgba($purple, 0.3);
+          &.btn.disabled,
+          &.btn[disabled] {
+            box-shadow: none;
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+    &--alt {
+      color: $purple;
+      background: white;
+      border: 1px solid $purple;
+      font-weight: bold;
+      &:not(:disabled):not(.disabled):active {
+        color: $purple;
+        background-color: white;
+        border-color: $purple;
+      }
+      &:not(.no-hover):hover {
+        transform: translateY(-3px);
+        color: $purple;
+        box-shadow: 0 5px 5px rgba($purple, 0.3);
+        &.btn.disabled,
+        &.btn[disabled] {
+          box-shadow: none;
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}
