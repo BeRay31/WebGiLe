@@ -21,6 +21,7 @@
       <button id="select-object" @click="selectFeature(`select`)">SELECT</button>
       <button id="file-save">SAVE</button>
       <button id="file-open">OPEN FILE</button>
+      <button @click="render">draw</button>
     </div>
     <h2>{{ currentFeature }}</h2>
 
@@ -175,10 +176,10 @@ export default {
       }
     },
     selectFeature(e) {
-      if(this.currentFeature === e) {
+      if(this.currentFeature == e) {
         this.pointArr = null;
       }
-      this.pointArr = [];
+      this.pointArr = new Array();
       this.selectedObject = null;
       this.currentFeature = null;
       this.lineObject = null;
@@ -224,6 +225,10 @@ export default {
     },
     mouseUpHandler() {
       this.mouseDown = false;
+      this.pointArr = new Array();
+      this.selectedObject = null;
+      this.currentFeature = null;
+      this.lineObject = null;
     }
   },
   watch: {
@@ -240,12 +245,16 @@ export default {
         }
         if(!this.lineObject) {
           this.lineObject = this.createObject();
+          this.lineObject.setVertexArr([...this.pointArr]);
+          this.lineObject.setRenderType(this.gl.LINES);
+          this.lineObject.bindBuffer();
           this.addObject(this.lineObject);
+        } else {
+          this.lineObject.setVertexArr([...this.pointArr]);
+          this.lineObject.setRenderType(this.gl.LINES);
+          this.lineObject.bindBuffer();
+          this.render();
         }
-        this.lineObject.setVertexArr(this.pointArr);
-        this.lineObject.setRenderType(this.gl.LINES);
-        this.lineObject.bindBuffer();
-        this.render();
       }
     }
   }
