@@ -406,9 +406,20 @@ export default {
     clickInputFile() {
       document.getElementById('hidden-input-file-button').click();
     },
-    renderJSON(e) {
+    async renderJSON(e) {
       this.JSONFile = e.target.files[0];
+      const JSONUrl = URL.createObjectURL(this.JSONFile);
+      const jsonFile = await fetch(JSONUrl);
+      const vertexArr = await jsonFile.json();
+      for(const obj of vertexArr) {
+        const newObj = this.createObject();
+        newObj.setColorVector(...obj.colorVector);
+        newObj.setVertexArr(obj.vertexArray);
+        newObj.setRenderType(obj.renderType);
+        this.addObject(newObj);
+      }
       document.getElementById('hidden-input-file-button').value = null;
+      this.render();
     }
   },
   watch: {

@@ -1,15 +1,28 @@
-
 [
   {
     "vertexArray": [
-      
+      100.0, 200.0,
+      300.0, 300.0
     ],
-    "colorVector": [],
-    "renderType": 0
+    "colorVector": [
+      1.0,
+      1.0,
+      0.0,
+      1.0
+    ],
+    "renderType": 1
   },
   {
-    "vertexArray": [],
-    "colorVector": [],
-    "renderType": 0
+    "vertexArray": [
+      200.0, 500.0,
+      800.0, 300.0
+    ],
+    "colorVector": [
+      1.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "renderType": 1
   }
 ]
