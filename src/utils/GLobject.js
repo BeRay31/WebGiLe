@@ -77,16 +77,44 @@ export default class GLObject {
   }
 
   scaleVertex(size) {
-    const newVertexArr = [];
-    const scaleArr = scale(size);
+    const initialX = this.vertexArr[0];
+    const initialY = this.vertexArr[1];
+    console.log(initialX, init)
+    console.log(this.vertexArr);
+    const normalizedVertex = [];
+
+    const translateTo0Mat = translate(-initialX, -initialY);
     for(let i = 0; i < this.vertexArr.length; i+=2) {
       const translatedPoint = matrixMultiplication(
-        scaleArr, toMatrix3(this.vertexArr[i], this.vertexArr[i+1])
+        translateTo0Mat, toMatrix3(this.vertexArr[i], this.vertexArr[i+1])
+      )
+      normalizedVertex.push(translatedPoint[0]);
+      normalizedVertex.push(translatedPoint[1]);
+    }
+    console.log(normalizedVertex)
+    
+    const scaledVertex = []
+
+    const scaleArr = scale(size);
+    for(let i = 0; i < this.vertexArr.length; i+=2) {
+      const scaledPoint = matrixMultiplication(
+        scaleArr, toMatrix3(normalizedVertex[i], normalizedVertex[i+1])
+      )
+      scaledVertex.push(scaledPoint[0]);
+      scaledVertex.push(scaledPoint[1]);
+    }
+    
+    const newVertexArr = [];
+    const translateToNorm = translate(initialX, initialY);
+    for(let i = 0; i < this.vertexArr.length; i+=2) {
+      const translatedPoint = matrixMultiplication(
+        translateToNorm, toMatrix3(scaledVertex[i], scaledVertex[i+1])
       )
       newVertexArr.push(translatedPoint[0]);
       newVertexArr.push(translatedPoint[1]);
     }
     this.vertexArr = [...newVertexArr];
+
   }
 
   setRenderType(type) {

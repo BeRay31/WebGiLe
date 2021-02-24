@@ -32,12 +32,6 @@
         @click="selectFeature(`polygon`)">
         POLYGON
       </div>
-      <div
-        v-if="currentFeature == 'polygon'" 
-        class="btn btn-secondary--alt" 
-        @click="newPolygon">
-        NEW POLYGON
-      </div>
       <div 
         class="btn btn-secondary" 
         :class="[currentFeature == 'select' ? 'btn-secondary' : 'btn-secondary--alt']" 
@@ -71,6 +65,23 @@
         class="btn btn-secondary--alt"
         @click="saveCurrentCanvas">
         SAVE FILE
+      </div>
+      <div
+        v-if="currentFeature == 'polygon'" 
+        class="btn btn-secondary--alt" 
+        @click="newPolygon">
+        NEW POLYGON
+      </div>
+      <div 
+        v-if="selectedObject" 
+        class="btn btn-secondary--alt" 
+        @click="deleteObject">
+        DELETE OBJECT
+      </div>
+      <div 
+        class="btn btn-secondary--alt" 
+        @click="clearObject">
+        CLEAR CANVAS
       </div>
     </div>
     <input 
@@ -164,9 +175,11 @@ export default {
       this.overlayToRender.push(obj);
       this.itemCount++;
     },
-    deleteObject(index) {
-      const toBeDeleted = this.glToRender.findIndex(el => el.id === index);
+    deleteObject() {
+      const toBeDeleted = this.glToRender.findIndex(el => el.id === this.selectedObject.id);
       this.glToRender.splice(toBeDeleted, 1);
+      this.clearOverlay();
+      this.render();
     },
     clearOverlay() {
       this.overlayToRender = new Array();
@@ -448,6 +461,11 @@ export default {
       this.pointArr = new Array(); 
       this.selectedObject = null; 
       this.tempRenderedObject = null;
+    },
+    clearObject() {
+      this.glToRender = new Array();
+      this.clearOverlay();
+      this.itemCount = 0;
     },
     clickInputFile() {
       document.getElementById('hidden-input-file-button').click();

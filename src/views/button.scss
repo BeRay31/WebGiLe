@@ -10,6 +10,8 @@ $purple: #7250ec;
   border-radius: 1rem;
   transition: all 0.2s;
   cursor: pointer;
+  display: flex;
+  align-items:  center;
 
   p,
   a {
