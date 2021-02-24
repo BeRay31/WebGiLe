@@ -79,7 +79,7 @@ export default class GLObject {
   scaleVertex(size) {
     const initialX = this.vertexArr[0];
     const initialY = this.vertexArr[1];
-    console.log(initialX, init)
+    console.log(initialX, initialY)
     console.log(this.vertexArr);
     const normalizedVertex = [];
 
