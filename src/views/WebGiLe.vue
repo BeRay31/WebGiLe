@@ -35,8 +35,16 @@
       <div 
         class="btn btn-secondary" 
         :class="[currentFeature == 'select' ? 'btn-secondary' : 'btn-secondary--alt']" 
-        @click="selectFeature(`select`)">
+        @click="selectFeature(`select`)"
+        @dblclick="openModal('SELECT', 'ALSDKAJDSJBKALSLDASD')"  
+      >
         SELECT
+      </div>
+      <div 
+        class="btn btn-secondary" 
+        @click="openModal('SELECT', 'ALSDKAJDSJBKALSLDASD')"
+      >
+        MODAL
       </div>
     </div>
     <div class="menu-container">
@@ -90,6 +98,21 @@
       accept=".wbgile.json"
       @change="renderJSON"
     >
+    <Modal
+      v-if="modal.state"
+      :state="modal.state"
+      :title="modal.title"
+      @closeModal="closeModal"
+    >
+      <div class="modal-content">
+        <h2>
+          {{ modal.helpFeature }}
+        </h2>
+        <div class="content">
+          {{ modal.helpText }}
+        </div>
+      </div>
+    </Modal>
   </div>
 </template>
 
@@ -100,11 +123,15 @@ import { createProgramShader,
         prepareFrameTexture,
         hexToRgb
       } from '@/utils/shaders';
+import Modal from '@/components/Modal';
 import GLObject from '@/utils/GLobject';
 import Editor from '@/utils/editor';
 
 export default {
   name: "WebGLCanvas",
+  components: {
+    Modal
+  },
   data() {
     return {
       // gl properties
@@ -128,7 +155,13 @@ export default {
       mouseDown: false,
       currentFeature: null,
       tempRenderedObject: null,
-      selectedColor: "#000000"
+      selectedColor: "#000000",
+      modal: {
+        state: false,
+        title: "Help!!",
+        helpText: "BASDALSDLASDKASD",
+        helpFeature: "SELECT BUTTON"
+      }
     }
   },
   mounted() {
@@ -149,20 +182,16 @@ export default {
     this.frameBuffer = prepareFrameTexture(this.gl);
 
     this.editor = new Editor(this.canvas, this.gl);
-    
-    // const ob1 = this.createObject();
-    // ob1.setVertexArr([
-    //   0, 0,
-    //   100, 0,
-    //   100, 100,
-    //   0, 100
-    // ])
-    // ob1.setRenderType(this.gl.TRIANGLE_FAN);
-    // ob1.setColorVector(1, 0, 0, 1);
-    // this.addObject(ob1);
-    // this.render();
   },
   methods: {
+    closeModal() {
+      this.modal.state = false;
+    },
+    openModal(subtitle, text) {
+      this.modal.state = true;
+      this.modal.helpFeature = subtitle;
+      this.modal.helpText = text;
+    },
     clearCanvas() {
       this.gl.clearColor(1,1,1,1);
       this.gl.clear(this.gl.COLOR_BUFFER_BIT);
