@@ -463,7 +463,7 @@ export default {
       const toBeSaved = [...this.glToRender.map(el => {
         return {
           vertexArray: el.vertexArr,
-          colorVector: el.colorVector,
+          colorVector: [...Object.values(el.colorVector)],
           renderType: el.renderType
         }
       })]
