@@ -54,9 +54,23 @@
           ATTACH COLOR
         </div>
       </div>
+      <div 
+        class="btn btn-secondary--alt" 
+        @click="clickInputFile">
+        OPEN FILE
+      </div>
+      <div 
+        class="btn btn-secondary--alt" 
+        >
+        SAVE FILE
+      </div>
     </div>
-    <input class="file" type="file" accept=".csv">
-
+    <input 
+      id="hidden-input-file-button" 
+      type="file" 
+      accept=".json"
+      @change="renderJSON"
+    >
   </div>
 </template>
 
@@ -74,17 +88,21 @@ export default {
   name: "WebGLCanvas",
   data() {
     return {
+      // gl properties
       canvas: null,
       gl: null,
       shaderProgram: null,
       selectProgram: null,
-      glToRender: new Array(),
-      itemCount: 0,
       frameBuffer: null,
+      glToRender: new Array(),
+      overlayToRender: new Array(),
+      itemCount: 0,
       mousePos: {
         x: 0,
         y: 0
       },
+      JSONFile: null,
+      // boolean and temp variables
       selectedObject: null,
       pointArr: null,
       mouseDown: false,
@@ -122,9 +140,16 @@ export default {
       this.glToRender.push(obj)
       this.itemCount++;
     },
+    addToOverlay(obj) {
+      this.overlayToRender.push(obj);
+      this.itemCount++;
+    },
     deleteObject(index) {
-      this.glToRender.splice(index, 1);
-      this.itemCount--;
+      const toBeDeleted = this.glToRender.findIndex(el => el.id === index);
+      this.glToRender.splice(toBeDeleted, 1);
+    },
+    clearOverlay() {
+      this.overlayToRender = new Array();
     },
     render() {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -133,12 +158,18 @@ export default {
       for(const obj of this.glToRender) {
         obj.draw();
       }
+      for(const obj of this.overlayToRender) {
+        obj.draw();
+      }
     },
     renderTexture() {
       this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.frameBuffer);
       this.clearCanvas();
       for(const obj of this.glToRender) {
         obj.drawSelect(this.selectProgram);
+      }
+      for(const obj of this.overlayToRender) {
+        obj.drawSelect();
       }
     },
     createObject() {
@@ -180,7 +211,7 @@ export default {
 
 
       if(id >=0 ) {
-        this.selectedObject = this.glToRender[id];
+        this.selectedObject = this.glToRender.find(el => el.id === id) || this.overlayToRender.find(el => el.id === id);
       }
     },
     selectFeature(e) {
@@ -215,7 +246,7 @@ export default {
           console.log("NOTHING HEHE");
           break;
       }
-      this.render();  
+      this.render();
     },
     mouseUpHandler() {
       this.mouseDown = false;
@@ -336,14 +367,6 @@ export default {
         this.render();
       }
     },
-    moveObject(value) {
-      const pointArr = [...this.pointArr];
-      pointArr.push(value);
-      const deltaX = pointArr[1].x - pointArr[0].x;
-      const deltaY = pointArr[1].y - pointArr[0].y;
-      this.selectedObject.setTranslatePoint(deltaX, deltaY);
-      this.render();
-    },
     attachColor() {
       const currentRGB = hexToRgb(this.selectedColor);
       const vecColorObj = {
@@ -358,6 +381,13 @@ export default {
       this.pointArr = new Array(); 
       this.selectedObject = null; 
       this.tempRenderedObject = null;
+    },
+    clickInputFile() {
+      document.getElementById('hidden-input-file-button').click();
+    },
+    renderJSON(e) {
+      this.JSONFile = e.target.files[0];
+      document.getElementById('hidden-input-file-button').value = null;
     }
   },
   watch: {
@@ -413,7 +443,7 @@ export default {
   margin-top: 1rem;
 }
 
-.file {
+#hidden-input-file-button {
   display: none;
 }
 
