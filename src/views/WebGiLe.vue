@@ -150,17 +150,17 @@ export default {
 
     this.editor = new Editor(this.canvas, this.gl);
     
-    const ob1 = this.createObject();
-    ob1.setVertexArr([
-      0, 0,
-      100, 0,
-      100, 100,
-      0, 100
-    ])
-    ob1.setRenderType(this.gl.TRIANGLE_FAN);
-    ob1.setColorVector(1, 0, 0, 1);
-    this.addObject(ob1);
-    this.render();
+    // const ob1 = this.createObject();
+    // ob1.setVertexArr([
+    //   0, 0,
+    //   100, 0,
+    //   100, 100,
+    //   0, 100
+    // ])
+    // ob1.setRenderType(this.gl.TRIANGLE_FAN);
+    // ob1.setColorVector(1, 0, 0, 1);
+    // this.addObject(ob1);
+    // this.render();
   },
   methods: {
     clearCanvas() {
@@ -244,6 +244,8 @@ export default {
 
       if(id >=0 ) {
         this.selectedObject = this.overlayToRender.find(el => el.id === id) || this.glToRender.find(el => el.id === id);
+      } else {
+        this.selectedObject = null;
       }
     },
     selectFeature(e) {
@@ -521,12 +523,16 @@ export default {
             this.drawPolygon(value);
             break;
           case 'select':
-            this.editor.moveObject(this.mousePos);
-            if (!this.selectedObject.vertexObject) {
-              console.log("THIS IS NOT A VERTEX OBJECT");
-              this.editor.moveOverlayObjects(this.mousePos);
-            }
+            if (this.selectedObject)
+            {
+              this.editor.moveObject(this.mousePos);
+              if (!this.selectedObject.vertexObject) {
+                console.log("THIS IS NOT A VERTEX OBJECT");
+                this.editor.moveOverlayObjects(this.mousePos);
+              }
             this.render();
+            }
+            
             break;
           default:
             break;
