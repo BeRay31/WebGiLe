@@ -1,4 +1,4 @@
-import { translate, rotate, scale, matrixMultiplication } from './projection';
+import { translate, rotate, scale, matrixMultiplication, toMatrix3 } from './projection';
 import GLVertexObject from './GLvertexObject';
 
 export default class GLObject {
@@ -49,16 +49,13 @@ export default class GLObject {
 
   setTranslate()
   {
-    // console.log("vertex count ",this.vertexArr.length);
     var i = 0;
     for (i = 0; i < this.vertexArr.length; i+=2)
     {
       this.vertexArr[i] += this.translatePoint.x;
       this.vertexArr[i+1] += this.translatePoint.y;
-      // console.log("working on vertex set", i);
     }
 
-    console.log("done");
     this.translatePoint.x = 0;
     this.translatePoint.y = 0;
   }
@@ -77,6 +74,19 @@ export default class GLObject {
     this.colorVector.G = G;
     this.colorVector.B = B;
     this.colorVector.A = A;
+  }
+
+  scaleVertex(size) {
+    const newVertexArr = [];
+    const scaleArr = scale(size);
+    for(let i = 0; i < this.vertexArr.length; i+=2) {
+      const translatedPoint = matrixMultiplication(
+        scaleArr, toMatrix3(this.vertexArr[i], this.vertexArr[i+1])
+      )
+      newVertexArr.push(translatedPoint[0]);
+      newVertexArr.push(translatedPoint[1]);
+    }
+    this.vertexArr = [...newVertexArr];
   }
 
   setRenderType(type) {

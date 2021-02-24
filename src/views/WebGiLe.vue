@@ -112,6 +112,7 @@ export default {
       JSONFile: null,
       // boolean and temp variables
       selectedObject: null,
+      selectedSize: 0,
       pointArr: null,
       mouseDown: false,
       currentFeature: null,
@@ -137,6 +138,17 @@ export default {
     this.frameBuffer = prepareFrameTexture(this.gl);
 
     this.editor = new Editor(this.canvas, this.gl);
+    
+    const ob1 = this.createObject();
+    ob1.setVertexArr([
+      0, 0,
+      100, 0,
+      100, 100,
+      0, 100
+    ])
+    ob1.setRenderType(this.gl.TRIANGLE_FAN);
+    ob1.setColorVector(1, 0, 0, 1);
+    this.addObject(ob1);
     this.render();
   },
   methods: {
@@ -220,8 +232,6 @@ export default {
       if(id >=0 ) {
         this.selectedObject = this.overlayToRender.find(el => el.id === id) || this.glToRender.find(el => el.id === id);
       }
-
-      console.log(this.selectedObject.id, "OBJ ID");
     },
     selectFeature(e) {
       if(this.currentFeature == e) {
@@ -231,8 +241,6 @@ export default {
       this.selectedObject = null;
       this.tempRenderedObject = null;
       this.currentFeature = e;
-
-      console.log(this.currentFeature);
 
       if (this.currentFeature != 'select')
       {
@@ -245,21 +253,18 @@ export default {
     {
       if (!obj.vertexObject)
         {
-          console.log(obj.vertexObject, "IS VERTEX OBJECT");
-
           var vertexPointers = this.editor.showVertexes(obj, this.itemCount);
 
           var i;
           for (i = 0; i < vertexPointers.length; i++)
           {
-            // console.log("HUHI", vertexPointers[i]);
             this.addToOverlay(vertexPointers[i]);
           }
         }
     },
     mouseDownHandler() {
       this.mouseDown = true;
-      
+      let prevObject;
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
@@ -271,27 +276,20 @@ export default {
           this.drawPolygon(this.mousePos);
           break;
         case 'select':
-          var prevObject = this.selectedObject;
-
+          prevObject = this.selectedObject;
           this.inspectObject();
-
-          if (prevObject != this.selectedObject && !this.selectedObject.vertexObject)
-          {
+          if (prevObject != this.selectedObject && 
+            !this.selectedObject.vertexObject
+          ) {
             this.clearOverlay();
           }
-
           this.pointArr = new Array();
-          // if (this.selectedObject)
-          // {
-            // this.clearOverlay();
-            this.editor.selectObject(this.selectedObject, this.mousePos, this.overlayToRender);
+          this.editor.selectObject(this.selectedObject, this.mousePos, this.overlayToRender);
 
-            if (prevObject != this.selectedObject)
-            {
-              this.createOverlayForObject(this.selectedObject);
-            }            
-          // }
-          // this.pointArr.push(this.mousePos); // initial point
+          if (prevObject != this.selectedObject)
+          {
+            this.createOverlayForObject(this.selectedObject);
+          }            
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -310,14 +308,9 @@ export default {
       } else if(this.currentFeature == 'polygon'){
         this.pointArr.push(...Object.values(this.mousePos));
       } else if(this.currentFeature == 'select') {
-        // this.selectedObject = null;
         this.pointArr = new Array();
         this.editor.releaseObject();
-        
-        console.log(this.overlayToRender.length, "OVERLAY COUNT");
-
-        var i;
-        for (i = 0; i < this.overlayToRender.length; i++)
+        for (let i = 0; i < this.overlayToRender.length; i++)
         {
           this.overlayToRender[i].setTranslate();
         }
@@ -363,9 +356,6 @@ export default {
 
       // let minLength = 0
       const minLength = (Math.max(Math.abs(lengthX),Math.abs(lengthY)) == Math.abs(lengthX)) ? Math.abs(lengthY) : Math.abs(lengthX);
-      console.log(Math.abs(lengthX));
-      console.log(Math.abs(lengthY));
-      console.log(Math.abs(minLength));
       if (a >= x) {
         if (b >= y) { // kanan atas
           squareVertex = [
@@ -436,8 +426,8 @@ export default {
       this.render();
     },
     resizeObject() {
-      this.selectedObject.setScaleSize(this.selectedSize, this.selectedSize);
       this.selectedObject.setTranslatePoint(0, 0);
+      this.selectedObject.scaleVertex(this.selectedSize);
 
       this.clearOverlay();
       this.createOverlayForObject(this.selectedObject);
@@ -514,8 +504,7 @@ export default {
             break;
           case 'select':
             this.editor.moveObject(this.mousePos);
-            if (!this.selectedObject.vertexObject)
-            {
+            if (!this.selectedObject.vertexObject) {
               console.log("THIS IS NOT A VERTEX OBJECT");
               this.editor.moveOverlayObjects(this.mousePos);
             }

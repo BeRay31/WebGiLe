@@ -40,65 +40,30 @@ export default class GLVertexObject {
       this.vID = vID;
       this.x = x;
       this.y = y;
-      console.log("vertexpoint created");
     }
 
     setTranslatePoint(x, y) { 
       this.translatePoint.x = x;
       this.translatePoint.y = y;
-        // this.translatePoint.x = x;
-        // this.translatePoint.y = y;
     }
 
     setTranslate()
     {
-      // console.log("vertex count ",this.vertexArr.length);
-      var i = 0;
-      for (i = 0; i < this.vertexArr.length; i+=2)
-      {
+      for (let i = 0; i < this.vertexArr.length; i+=2) {
         this.vertexArr[i] += this.translatePoint.x;
         this.vertexArr[i+1] += this.translatePoint.y;
-        // console.log("working on vertex set", i);
       }
 
       this.x += this.translatePoint.x;
       this.y += this.translatePoint.y;
   
-      // console.log(this.x, this.y, "X AND Y");
-      // console.log(this.vID*2, this.vID*2+1, "VID");
-
       this.glObject.vertexArr[this.vID*2] = this.x;
       this.glObject.vertexArr[this.vID*2+1] = this.y; 
 
-      console.log(this.glObject, "OBJECT");
-
-      // console.log("done");
       this.translatePoint.x = 0;
       this.translatePoint.y = 0;
-      // this.updateObjectVertexes();
-      // this.updateObjectVertexes();
     }
 
-    updateObjectVertexes()
-    {
-      
-    }
-
-    // highlight() {
-    //   this.highlight = true;
-    //   this.vertexSelectors = new Array();
-    //   var i;
-    //   for (i = 0; i < this.vertexArr.length; i+=2)
-    //   {
-    //     this.vertexSelectors.push(new GLVertexObject(this.id, this.shaderProgram, this.glContext, this.vertexArr[i], this.vertexArr[i+1]));
-    //   }
-  
-    //   for (var obj in this.vertexSelectors)
-    //   {
-    //     obj.draw();
-    //   }
-    // }
-  
     removeHighlight()
     {
       this.highlight = false;

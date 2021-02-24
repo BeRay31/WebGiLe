@@ -25,6 +25,14 @@ export const scale = (kx, ky) => {
   ]
 }
 
+export const toMatrix3 = (x, y) => {
+  return [
+    x, y, 1,
+    0, 0, 0,
+    0, 0, 0
+  ]
+}
+
 export const matrixMultiplication = (m1, m2) => {
   const res = [];
   for(let i = 0; i < 3; i++) {
@@ -37,3 +45,4 @@ export const matrixMultiplication = (m1, m2) => {
   }
   return res;
 }
+

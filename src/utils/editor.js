@@ -9,8 +9,6 @@ const getMouseCoordinates = (e, canvas, gl) =>
         x: (e.clientX - bound.left) * gl.canvas.width / canvas.clientWidth,
         y: this.gl.canvas.height - (e.clientY - bound.top) * gl.canvas.height / canvas.clientHeight - 1
       }
-      console.log(mouseCoordinates.x, mouseCoordinates.y);
-
       return mouseCoordinates;
 }
 
@@ -43,7 +41,6 @@ export default class Editor
                 this.points.push(getMouseCoordinates(e, this.canvas, this.glContext));
             }
             )
-            console.log("Added point");
         }
     }
 
@@ -58,27 +55,13 @@ export default class Editor
         var vertexPointers = new Array();
         for (i = 0; i < this.object.vertexArr.length; i+=2)
         {
-            // console.log("vertexes ", i/2);
-            // console.log(object.vertexArr[i], object.vertexArr[i+1]);
             vertexPointers.push(new GLVertexObject(itemCount, object.shaderProgram, object.glContext, object.vertexArr[i], object.vertexArr[i+1], object, i/2));
             itemCount++;
-            // console.log(vertexPointers[i/2]);
         }
 
         this.vertexPointers = vertexPointers;
 
         return vertexPointers;
-    }
-
-    hideVertexes()
-    {
-        // var toDelete = new Array();
-        // for (var obj in this.vertexPointers)
-        // {
-        //     toDelete.push(obj.id);
-        // }
-
-        // this.vertexPoin
     }
 
     // On key down
@@ -89,7 +72,6 @@ export default class Editor
         this.points.push(object.translatePoint);
         this.object = object;
         this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y);
-        console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
 
         if (!this.object.vertexObject)
         {
@@ -97,8 +79,6 @@ export default class Editor
         } else {
             this.overlayArray = [];
         }
-        // console.log("START AT", this.object.vertexArr[0]);
-        // this.object.highlight = true;
     }
 
     // On key down + on mouse move 
@@ -108,27 +88,8 @@ export default class Editor
         this.object.setTranslatePoint(0, 0);
 
         this.points[2] = mousePos; // set currentmouse
-        // this.points[3] = this.object.translatePoint;
-        // this.object.setTranslatePoint(this.points[1].x, this.points[1].y);
         var delta = getPositionDelta(this.points[0], this.points[2]);
         this.object.setTranslatePoint(delta.x, delta.y);
-
-        // var i;
-        // for (i = 0; i < this.overlayArray.length; i++)
-        // {
-        //     this.overlayArray[i].setTranslatePoint(delta.x, delta.y);
-        // }   
-
-        // if (this.object.vertexObject)
-        // {
-        //     this.object.setTranslate();
-        //     this.object.updateObjectVertexes();
-        // }
-
-        // return this.overlayArray;
-        // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
-
-        // this.points[0] = mousePos; // set currentmouse to prev mouse
     }
 
     moveOverlayObjects(mousePos)
@@ -139,8 +100,6 @@ export default class Editor
             this.overlayArray[i].setTranslatePoint(0, 0);
 
             this.points[2] = mousePos; // set currentmouse
-            // this.points[3] = this.object.translatePoint;
-            // this.object.setTranslatePoint(this.points[1].x, this.points[1].y);
             var delta = getPositionDelta(this.points[0], this.points[2]);
             this.overlayArray[i].setTranslatePoint(delta.x, delta.y);
         }
@@ -150,7 +109,6 @@ export default class Editor
     // On key up
     releaseObject()
     {
-        console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
         this.object.setTranslate();
         
         var i;
@@ -159,9 +117,6 @@ export default class Editor
             this.overlayArray[i].setTranslate();
         } 
 
-        // this.object.highlight = false;
-        // console.log("END AT", this.object.vertexArr[0]);
         this.clearPoints();
-        // this.object = null;
     }
 }
