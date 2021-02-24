@@ -212,9 +212,9 @@ export default {
       } else if(this.currentFeature == 'select') {
         // this.selectedObject = null;
         this.pointArr = new Array();
-        // this.editor.releaseObject();
+        this.editor.releaseObject();
       }
-      this.editor.releaseObject();
+      // this.editor.releaseObject();
       this.render();
     },
     drawLine(value) {
