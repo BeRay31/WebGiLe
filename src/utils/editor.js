@@ -78,7 +78,8 @@ export default class Editor
         this.object = object;
         this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y)
         console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
-        console.log("START AT", this.object.vertexArr[0])
+        console.log("START AT", this.object.vertexArr[0]);
+        // this.object.highlight = true;
     }
 
     // On key down + on mouse move 
@@ -102,6 +103,7 @@ export default class Editor
     {
         // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
         this.object.setTranslate();
+        // this.object.highlight = false;
         console.log("END AT", this.object.vertexArr[0]);
         this.clearPoints();
         this.object = null;

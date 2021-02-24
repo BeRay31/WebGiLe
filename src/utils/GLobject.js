@@ -1,4 +1,5 @@
 import { translate, rotate, scale, matrixMultiplication } from './projection';
+import GLVertexObject from './GLvertexObject';
 
 export default class GLObject {
   constructor(
@@ -25,11 +26,19 @@ export default class GLObject {
       A: 1.0
     };
     this.glContext = glContext;
-    this.renderType = this.glContext.TRIANGLES
+    this.renderType = this.glContext.TRIANGLES;
+    this.highlight = false;
   }
 
   setVertexArr(arr) { // n number of vertex
     this.vertexArr = [...arr]; // avoiding mutations
+    this.vertexObjectArr = [];
+
+    var i;
+    for (i = 0; i < this.vertexArr.length; i+=2)
+    {
+      this.vertexObjectArr.push(new GLVertexObject(this.id, this.shaderProgram, this.glContext, this.vertexObjectArr[i], this.vertexArr[i+1]));
+    }
   }
 
   setTranslatePoint(x, y) { 
@@ -108,7 +117,6 @@ export default class GLObject {
     ]
     this.glContext.uniform4fv(uniformCol, uniformId);
     this.glContext.drawArrays(this.renderType, 0, this.vertexArr.length/2);
-
   }
 
   draw() {
@@ -132,10 +140,11 @@ export default class GLObject {
     // draw
     this.glContext.drawArrays(this.renderType, 0, this.vertexArr.length/2);
 
-    
-    this.glContext.uniform4f(colorFrag, 0.0, 1.0, 0, 1.0);
-    this.glContext.lineWidth(5);
-    this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
+    if (this.highlight)
+    {
+      this.glContext.uniform4f(colorFrag, 1.0, 1.0, 0, 1.0);
+      this.glContext.lineWidth(5);
+      this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
+    } 
   }
-
 }
