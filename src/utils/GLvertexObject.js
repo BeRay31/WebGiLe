@@ -13,8 +13,9 @@ export default class GLVertexObject {
       this.vertexArr = [
             x-10, y-10,
             x-10, y+10,
-            x+10, y+10,
-            x+10, y-10
+            //
+            x+10, y-10,
+            x+10, y+10
       ]; // init state `is empty`
       this.shaderProgram = shaderProgram;
       this.translatePoint = {
@@ -28,12 +29,12 @@ export default class GLVertexObject {
       }; // default scaling
       this.colorVector = {
         R: 1.0,
-        G: 1.0,
+        G: 0.0,
         B: 1.0,
         A: 1.0
       };
       this.glContext = glContext;
-      this.renderType = this.glContext.TRIANGLE_FAN;
+      this.renderType = this.glContext.TRIANGLE_STRIP;
       this.highlight = false;
       this.vertexObject = true;
       this.glObject = glObject;
@@ -169,7 +170,7 @@ export default class GLVertexObject {
     
         // draw
         this.glContext.drawArrays(this.renderType, 0, this.vertexArr.length/2);
-        this.glContext.uniform4f(colorFrag, 0, 0, 0, 1);
-        this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
+        // this.glContext.uniform4f(colorFrag, 0, 0, 0, 1);
+        // this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
       }
   }
