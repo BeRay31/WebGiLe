@@ -36,15 +36,14 @@
         class="btn btn-secondary" 
         :class="[currentFeature == 'select' ? 'btn-secondary' : 'btn-secondary--alt']" 
         @click="selectFeature(`select`)"
-        @dblclick="openModal('SELECT', 'ALSDKAJDSJBKALSLDASD')"  
       >
         SELECT
       </div>
       <div 
         class="btn btn-secondary" 
-        @click="openModal('SELECT', 'ALSDKAJDSJBKALSLDASD')"
+        @click="openModal('', '')"
       >
-        MODAL
+        HELP
       </div>
     </div>
     <div class="menu-container">
@@ -102,14 +101,92 @@
       v-if="modal.state"
       :state="modal.state"
       :title="modal.title"
+      medium-height
       @closeModal="closeModal"
     >
       <div class="modal-content">
         <h2>
-          {{ modal.helpFeature }}
+          Create a Line
         </h2>
         <div class="content">
-          {{ modal.helpText }}
+          - Click LINE button<br>
+          - Click and drag mouse from one point to other point <br>
+        </div>
+        <h2>
+          Create a Square
+        </h2>
+        <div class="content">
+          - Click SQUARE button<br>
+          - Click and drag mouse from one point to other point 
+        </div>
+        <h2>
+          Create a Polygon
+        </h2>
+        <div class="content">
+          - Click POLYGON button<br>
+          - Click at a point for the starting point <br>
+          - Click at another point to be the next vertices<br>
+          - Click NEW POLYGON button to start making a new polygon 
+        </div>
+        <h2>
+          Move a Vertex
+        </h2>
+        <div class="content">
+          - Click SELECT button<br>
+          - Select an object <br>
+          - Drag a vertex to move the vertex to the desired position
+        </div>
+        <h2>
+          Move an Object
+        </h2>
+        <div class="content">
+          - Click SELECT button<br>
+          - Select an object <br>
+          - Drag mouse to move object to the desired position
+        </div>
+        <h2>
+          Resize an Object
+        </h2>
+        <div class="content">
+          - Click SELECT button<br>
+          - Select an object <br>
+          - Put in a range enlargement number 
+        </div>
+        <h2>
+          Recolor an Object
+        </h2>
+        <div class="content">
+          - Click SELECT button<br>
+          - Select an object <br>
+          - Put in a RGB/HSL/HEX code or pick a color with the color picker/slider/mapper<br>
+          - Click ATTACH COLOR button
+        </div>
+        <h2>
+          Delete an Object
+        </h2>
+        <div class="content">
+          - Click SELECT button<br>
+          - Select an object <br>
+          - Click on DELETE OBJECT button
+        </div>
+        <h2>
+          Clear the Canvas
+        </h2>
+        <div class="content">
+          - Click CLEAR CANVAS button<br>
+        </div>
+        <h2>
+          Load a Saved File
+        </h2>
+        <div class="content">
+          - Click OPEN FILE button<br>
+          - Choose a desired file 
+        </div>
+        <h2>
+          Save a File
+        </h2>
+        <div class="content">
+          - Click SAVE FILE button 
         </div>
       </div>
     </Modal>
@@ -158,7 +235,7 @@ export default {
       selectedColor: "#000000",
       modal: {
         state: false,
-        title: "Help!!",
+        title: "How to Play",
         helpText: "BASDALSDLASDKASD",
         helpFeature: "SELECT BUTTON"
       }

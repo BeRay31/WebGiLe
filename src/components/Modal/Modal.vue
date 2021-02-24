@@ -100,7 +100,7 @@ $color-secondary: white;
     border-radius: 2rem;
     width: 90%;
     max-width: 700px;
-    max-height: 90vh;
+    max-height: 70vh;
     overflow: auto;
 
     &.overflow-initial {
