@@ -396,11 +396,11 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: solid 1px black;
 
   canvas {
-    width: 100vw;
-    height: 80vh;
+  border: solid 1px black;
+    width: 1280px;
+    height: 720px;
   }
 }
 
