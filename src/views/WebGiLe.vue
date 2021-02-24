@@ -244,6 +244,10 @@ export default {
 
       if(id >=0 ) {
         this.selectedObject = this.overlayToRender.find(el => el.id === id) || this.glToRender.find(el => el.id === id);
+        if (!this.selectedObject.vertexObject)
+        {
+          this.lastSelectedObject = this.selectedObject;
+        }
       } else {
         this.selectedObject = null;
       }
@@ -441,8 +445,8 @@ export default {
       this.render();
     },
     resizeObject() {
-      this.selectedObject.setTranslatePoint(0, 0);
-      this.selectedObject.scaleVertex(this.selectedSize);
+      this.lastSelectedObject.setTranslatePoint(0, 0);
+      this.lastSelectedObject.scaleVertex(this.selectedSize);
 
       this.clearOverlay();
       this.createOverlayForObject(this.selectedObject);
