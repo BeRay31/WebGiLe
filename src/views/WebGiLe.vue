@@ -68,8 +68,8 @@
         OPEN FILE
       </div>
       <div 
-        class="btn btn-secondary--alt" 
-        >
+        class="btn btn-secondary--alt"
+        @click="saveCurrentCanvas">
         SAVE FILE
       </div>
     </div>
@@ -420,6 +420,24 @@ export default {
       }
       document.getElementById('hidden-input-file-button').value = null;
       this.render();
+    },
+    async saveCurrentCanvas() {
+      const exportName = "webGiLeCanvas";
+      const toBeSaved = [...this.glToRender.map(el => {
+        return {
+          vertexArray: el.vertexArr,
+          colorVector: el.colorVector,
+          renderType: el.renderType
+        }
+      })]
+      const toBeDownloaded = JSON.stringify(toBeSaved);
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(toBeDownloaded);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href",     dataStr);
+      downloadAnchorNode.setAttribute("download", exportName + ".json");
+      document.body.appendChild(downloadAnchorNode); // required for firefox
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
     }
   },
   watch: {
