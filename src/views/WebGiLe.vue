@@ -47,6 +47,14 @@
     </div>
     <div class="menu-container">
       <div v-if="selectedObject" class="color-container">
+        <input v-model.number="selectedSize" type="number">
+        <div
+          class="btn btn-secondary--alt" 
+          @click="resizeObject">
+          RESIZE
+        </div>
+      </div>
+      <div v-if="selectedObject" class="color-container">
         <input type="color" v-model="selectedColor">
         <div
           class="btn btn-secondary--alt" 
@@ -366,6 +374,19 @@ export default {
         this.tempRenderedObject.setRenderType(this.gl.TRIANGLE_FAN);	
         this.render();
       }
+    },
+    moveObject(value) {
+      const pointArr = [...this.pointArr];
+      pointArr.push(value);
+      const deltaX = pointArr[1].x - pointArr[0].x;
+      const deltaY = pointArr[1].y - pointArr[0].y;
+      this.selectedObject.setTranslatePoint(deltaX, deltaY);
+      this.render();
+    },
+    resizeObject() {
+      this.selectedObject.setScaleSize(this.selectedSize, this.selectedSize);
+      this.selectedObject.setTranslatePoint(0, 0);
+      this.render();
     },
     attachColor() {
       const currentRGB = hexToRgb(this.selectedColor);
