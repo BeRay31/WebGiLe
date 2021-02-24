@@ -49,7 +49,7 @@
     </div>
     <div class="menu-container">
       <div v-if="selectedObject" class="color-container">
-        <input v-model.number="selectedSize" type="number">
+        <input v-model.number="selectedSize" type="number" step="0.1">
         <div
           class="btn btn-secondary--alt" 
           @click="resizeObject">
@@ -150,7 +150,7 @@ export default {
       JSONFile: null,
       // boolean and temp variables
       selectedObject: null,
-      selectedSize: 0,
+      selectedSize: 1,
       pointArr: null,
       mouseDown: false,
       currentFeature: null,
