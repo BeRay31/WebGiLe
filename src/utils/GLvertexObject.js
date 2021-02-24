@@ -27,9 +27,9 @@ export default class GLVertexObject {
         y: 1
       }; // default scaling
       this.colorVector = {
-        R: 1.0,
-        G: 0.0,
-        B: 0.0,
+        R: 0.5,
+        G: 0.5,
+        B: 0.5,
         A: 1.0
       };
       this.glContext = glContext;
@@ -46,8 +46,10 @@ export default class GLVertexObject {
     setTranslatePoint(x, y) { 
       this.translatePoint.x = x;
       this.translatePoint.y = y;
+
         // this.translatePoint.x = x;
         // this.translatePoint.y = y;
+      
     }
 
     setTranslate()
@@ -60,7 +62,7 @@ export default class GLVertexObject {
         this.vertexArr[i+1] += this.translatePoint.y;
         // console.log("working on vertex set", i);
       }
-
+      
       this.x += this.translatePoint.x;
       this.y += this.translatePoint.y;
   
@@ -81,7 +83,8 @@ export default class GLVertexObject {
 
     updateObjectVertexes()
     {
-      
+      this.glObject.vertexArr[this.vID*2] = this.x;
+      this.glObject.vertexArr[this.vID*2+1] = this.y; 
     }
 
     // highlight() {
