@@ -267,12 +267,48 @@ export default {
       const y = this.pointArr[1];
       const a = this.pointArr[2];
       const b = this.pointArr[3];
-      squareVertex = [
-        x, y,
-        x, b,
-        a, b,
-        a, y
-      ]
+
+      const lengthX = a-x;
+      const lengthY = b-y;
+      // let minLength = 0
+      const minLength = (Math.max(Math.abs(lengthX),Math.abs(lengthY)) == Math.abs(lengthX)) ? Math.abs(lengthY) : Math.abs(lengthX);
+      console.log(Math.abs(lengthX));
+      console.log(Math.abs(lengthY));
+      console.log(Math.abs(minLength));
+      if (a >= x) {
+        if (b >= y) { // kanan atas
+          squareVertex = [
+            x, y,
+            x, (y + minLength),
+            (x + minLength), (y + minLength),
+            (x + minLength), y
+          ]
+        } else { // kanan bawah
+          squareVertex = [
+            x, y,
+            (x + minLength), y,
+            (x + minLength), (y - minLength),
+            x, (y - minLength),
+          ]
+        }
+      } else {
+        if (b >= y) { // kiri atas
+          squareVertex = [
+            x, y,
+            (x - minLength), y,
+            (x - minLength), (y + minLength),
+            x, (y + minLength),
+          ]
+        } else { // kiri bawah
+          squareVertex = [
+            x, y,
+            x, (y - minLength),
+            (x - minLength), (y - minLength),
+            (x - minLength), y
+          ]
+        }
+      }
+      
       if(!this.tempRenderedObject) {
         this.tempRenderedObject = this.createObject();
         this.tempRenderedObject.setVertexArr([...squareVertex]);	
