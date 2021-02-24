@@ -5,14 +5,16 @@ export default class GLVertexObject {
       id, 
       shaderProgram, 
       glContext,
-      x, y
+      x, y,
+      glObject,
+      vID
     ) {
       this.id = id;
       this.vertexArr = [
-            x-50, y-50,
-            x-50, y+50,
-            x+50, y+50,
-            x+50, y-50
+            x-10, y-10,
+            x-10, y+10,
+            x+10, y+10,
+            x+10, y-10
       ]; // init state `is empty`
       this.shaderProgram = shaderProgram;
       this.translatePoint = {
@@ -26,34 +28,72 @@ export default class GLVertexObject {
       }; // default scaling
       this.colorVector = {
         R: 1.0,
-        G: 1.0,
-        B: 1.0,
+        G: 0.0,
+        B: 0.0,
         A: 1.0
       };
       this.glContext = glContext;
-      this.renderType = this.glContext.TRIANGLES;
+      this.renderType = this.glContext.TRIANGLE_FAN;
       this.highlight = false;
+      this.vertexObject = true;
+      this.glObject = glObject;
+      this.vID = vID;
+      console.log("vertexpoint created");
     }
 
     setTranslatePoint(x, y) { 
-        this.translatePoint.x = x;
-        this.translatePoint.y = y;
+      this.translatePoint.x = x;
+      this.translatePoint.y = y;
+        // this.translatePoint.x = x;
+        // this.translatePoint.y = y;
+    }
 
-        console.log("vertex count ",this.vertexArr.length);
-        var i = 0;
-        for (i = 0; i < this.vertexArr.length; i+=2)
-        {
-          this.vertexArr[i] += this.translatePoint.x;
-          this.vertexArr[i+1] += this.translatePoint.y;
-          console.log("working on vertex set", i);
-        }
+    setTranslate()
+    {
+      // console.log("vertex count ",this.vertexArr.length);
+      var i = 0;
+      for (i = 0; i < this.vertexArr.length; i+=2)
+      {
+        this.vertexArr[i] += this.translatePoint.x;
+        this.vertexArr[i+1] += this.translatePoint.y;
+        // console.log("working on vertex set", i);
+      }
 
-        this.x += x;
-        this.y += y;
-    
-        console.log("done");
-        this.translatePoint.x = 0;
-        this.translatePoint.y = 0;
+      this.x += this.translatePoint.x;
+      this.y += this.translatePoint.y;
+  
+      // console.log("done");
+      this.translatePoint.x = 0;
+      this.translatePoint.y = 0;
+
+      // this.updateObjectVertexes();
+    }
+
+    updateObjectVertexes()
+    {
+      this.glObject.vertexArr[this.vID*2] = this.x;
+      this.glObject.vertexArr[this.vID*2+1] = this.y; 
+    }
+
+    // highlight() {
+    //   this.highlight = true;
+    //   this.vertexSelectors = new Array();
+    //   var i;
+    //   for (i = 0; i < this.vertexArr.length; i+=2)
+    //   {
+    //     this.vertexSelectors.push(new GLVertexObject(this.id, this.shaderProgram, this.glContext, this.vertexArr[i], this.vertexArr[i+1]));
+    //   }
+  
+    //   for (var obj in this.vertexSelectors)
+    //   {
+    //     obj.draw();
+    //   }
+    // }
+  
+    removeHighlight()
+    {
+      this.highlight = false;
+      this.vertexSelectors = [];
     }
 
     calculateProjMat() { // ((rotation x scale) x translate)
@@ -74,6 +114,8 @@ export default class GLVertexObject {
       }
     
       drawSelect(selectProgram) {
+        this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
+
         this.calculateProjMat();
         this.bindBuffer();
         this.glContext.useProgram(selectProgram);
@@ -94,6 +136,8 @@ export default class GLVertexObject {
       }
     
       draw() {
+        this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
+
         this.calculateProjMat();
         this.bindBuffer();
         this.glContext.useProgram(this.shaderProgram);

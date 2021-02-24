@@ -1,5 +1,7 @@
 // import squareObject from './square'
 
+import GLVertexObject from "./GLvertexObject";
+
 const getMouseCoordinates = (e, canvas, gl) => 
 {
     const bound = canvas.getBoundingClientRect();
@@ -50,23 +52,33 @@ export default class Editor
         this.points = [];
     }
 
-    createLine()
-    {
-        this.addPoints(2);   
+    showVertexes(object, itemCount)
+    {   
+        var i;
+        var vertexPointers = new Array();
+        for (i = 0; i < this.object.vertexArr.length; i+=2)
+        {
+            // console.log("vertexes ", i/2);
+            // console.log(object.vertexArr[i], object.vertexArr[i+1]);
+            vertexPointers.push(new GLVertexObject(itemCount, object.shaderProgram, object.glContext, object.vertexArr[i], object.vertexArr[i+1], object, i/2));
+            itemCount++;
+            // console.log(vertexPointers[i/2]);
+        }
+
+        this.vertexPointers = vertexPointers;
+
+        return vertexPointers;
     }
 
-    createSquare()
+    hideVertexes()
     {
-        // this.addPoints(2);
-        // var length = Math.min(this.points[0].x - this.points[1].x, this.points[0].y - this.points[1].y);
-        // var squareObject = new squareObject(this.points[0].x, this.points[0].y, length, this.glContext);
-        // clearPoints();
-        // return squareObject;
-    }
+        // var toDelete = new Array();
+        // for (var obj in this.vertexPointers)
+        // {
+        //     toDelete.push(obj.id);
+        // }
 
-    createPolygon()
-    {
-        
+        // this.vertexPoin
     }
 
     // On key down
@@ -76,9 +88,9 @@ export default class Editor
         this.points.push(mousePos); // initial mouse point
         this.points.push(object.translatePoint);
         this.object = object;
-        this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y)
-        console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
-        console.log("START AT", this.object.vertexArr[0]);
+        this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y);
+        // console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+        // console.log("START AT", this.object.vertexArr[0]);
         // this.object.highlight = true;
     }
 
@@ -104,8 +116,8 @@ export default class Editor
         // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
         this.object.setTranslate();
         // this.object.highlight = false;
-        console.log("END AT", this.object.vertexArr[0]);
+        // console.log("END AT", this.object.vertexArr[0]);
         this.clearPoints();
-        this.object = null;
+        // this.object = null;
     }
 }

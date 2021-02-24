@@ -28,6 +28,7 @@ export default class GLObject {
     this.glContext = glContext;
     this.renderType = this.glContext.TRIANGLES;
     this.highlight = false;
+    this.vertexObject = false;
   }
 
   setVertexArr(arr) { // n number of vertex
@@ -48,13 +49,13 @@ export default class GLObject {
 
   setTranslate()
   {
-    console.log("vertex count ",this.vertexArr.length);
+    // console.log("vertex count ",this.vertexArr.length);
     var i = 0;
     for (i = 0; i < this.vertexArr.length; i+=2)
     {
       this.vertexArr[i] += this.translatePoint.x;
       this.vertexArr[i+1] += this.translatePoint.y;
-      console.log("working on vertex set", i);
+      // console.log("working on vertex set", i);
     }
 
     console.log("done");
@@ -139,12 +140,5 @@ export default class GLObject {
 
     // draw
     this.glContext.drawArrays(this.renderType, 0, this.vertexArr.length/2);
-
-    if (this.highlight)
-    {
-      this.glContext.uniform4f(colorFrag, 1.0, 1.0, 0, 1.0);
-      this.glContext.lineWidth(5);
-      this.glContext.drawArrays(this.glContext.LINE_LOOP, 0, this.vertexArr.length/2);
-    } 
   }
 }
