@@ -90,6 +90,12 @@ export default class Editor
         this.points[2] = mousePos; // set currentmouse
         var delta = getPositionDelta(this.points[0], this.points[2]);
         this.object.setTranslatePoint(delta.x, delta.y);
+
+        if (this.object.vertexObject)
+        {
+            this.object.glObject.vertexArr[this.object.vID*2] = this.object.x + this.object.translatePoint.x;
+            this.object.glObject.vertexArr[this.object.vID*2+1] = this.object.y + this.object.translatePoint.y; 
+        }
     }
 
     moveOverlayObjects(mousePos)
@@ -103,7 +109,8 @@ export default class Editor
             var delta = getPositionDelta(this.points[0], this.points[2]);
             this.overlayArray[i].setTranslatePoint(delta.x, delta.y);
         }
-        
+
+        // this.object.setTranslate();
     }
 
     // On key up

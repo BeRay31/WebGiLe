@@ -217,7 +217,7 @@ export default {
       this.renderTexture(this.selectProgram);
 
       const data = new Uint8Array(4);
-      this.gl.readPixels(this.mousePos.x , this.mousePos.y, 1,1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
+      this.gl.readPixels(this.mousePos.x , this.mousePos.y, 1.5, 1.5, this.gl.RGBA, this.gl.UNSIGNED_BYTE, data);
 
       // search id
       const id = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
@@ -508,7 +508,6 @@ export default {
               console.log("THIS IS NOT A VERTEX OBJECT");
               this.editor.moveOverlayObjects(this.mousePos);
             }
-            this.clearCanvas();
             this.render();
             break;
           default:
