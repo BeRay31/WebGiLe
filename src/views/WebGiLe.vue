@@ -32,6 +32,12 @@
         @click="selectFeature(`polygon`)">
         POLYGON
       </div>
+      <div
+        v-if="currentFeature == 'polygon'" 
+        class="btn btn-secondary--alt" 
+        @click="newPolygon">
+        NEW POLYGON
+      </div>
       <div 
         class="btn btn-secondary" 
         :class="[currentFeature == 'select' ? 'btn-secondary' : 'btn-secondary--alt']" 
@@ -39,13 +45,28 @@
         SELECT
       </div>
     </div>
+    <div class="menu-container">
+      <div v-if="selectedObject" class="color-container">
+        <input type="color" v-model="selectedColor">
+        <div
+          class="btn btn-secondary--alt" 
+          @click="attachColor">
+          ATTACH COLOR
+        </div>
+      </div>
+    </div>
+    <input class="file" type="file" accept=".csv">
 
   </div>
 </template>
 
 <script>
 
-import { createProgramShader, createSelectShader, prepareFrameTexture } from '@/utils/shaders';
+import { createProgramShader, 
+        createSelectShader, 
+        prepareFrameTexture,
+        hexToRgb
+      } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
 import Editor from '@/utils/editor';
 
@@ -68,7 +89,8 @@ export default {
       pointArr: null,
       mouseDown: false,
       currentFeature: null,
-      tempRenderedObject: null
+      tempRenderedObject: null,
+      selectedColor: "#000000"
     }
   },
   mounted() {
@@ -156,15 +178,11 @@ export default {
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
 
-      // this.editor.selectObject(this.glToRender[id], this.mousePos);
 
       if(id >=0 ) {
         this.selectedObject = this.glToRender[id];
       }
     },
-    // dragObject() {
-    //   this.editor.moveObject(this.mousePos);
-    // },
     selectFeature(e) {
       if(this.currentFeature == e) {
         this.currentFeature = null;
@@ -185,7 +203,7 @@ export default {
           this.pointArr.push(...Object.values(this.mousePos));
           break;
         case 'polygon':
-          // do nothing
+          this.drawPolygon(this.mousePos);
           break;
         case 'select':
           this.inspectObject();
@@ -197,6 +215,7 @@ export default {
           console.log("NOTHING HEHE");
           break;
       }
+      this.render();  
     },
     mouseUpHandler() {
       this.mouseDown = false;
@@ -205,7 +224,6 @@ export default {
       ) {
         this.pointArr = new Array(); 
         this.selectedObject = null; 
-        this.currentFeature = null; 
         this.tempRenderedObject = null;
       } else if(this.currentFeature == 'polygon'){
         this.pointArr.push(...Object.values(this.mousePos));
@@ -289,6 +307,21 @@ export default {
       const deltaY = pointArr[1].y - pointArr[0].y;
       this.selectedObject.setTranslatePoint(deltaX, deltaY);
       this.render();
+    },
+    attachColor() {
+      const currentRGB = hexToRgb(this.selectedColor);
+      const vecColorObj = {
+        r: currentRGB.r/255,
+        g: currentRGB.g/255,
+        b: currentRGB.b/255
+      }
+      this.selectedObject.setColorVector(...Object.values(vecColorObj), 1.0);
+      this.render();
+    },
+    newPolygon() {
+      this.pointArr = new Array(); 
+      this.selectedObject = null; 
+      this.tempRenderedObject = null;
     }
   },
   watch: {
@@ -308,7 +341,6 @@ export default {
             this.drawPolygon(value);
             break;
           case 'select':
-            // this.moveObject(value);
             this.editor.moveObject(this.mousePos);
             this.render();
             break;
@@ -343,5 +375,23 @@ export default {
   justify-content: center;
   gap: 1rem;
   margin-top: 1rem;
+}
+
+.file {
+  display: none;
+}
+
+.color-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  border: solid $purple 1px;
+  padding: 4px;
+  border-radius: 5px;
+
+  input {
+    height: 80%;
+  }
 }
 </style>
