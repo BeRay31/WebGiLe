@@ -82,14 +82,21 @@ export default class Editor
     }
 
     // On key down
-    selectObject(object, mousePos)
+    selectObject(object, mousePos, overlay)
     {
         this.clearPoints();
         this.points.push(mousePos); // initial mouse point
         this.points.push(object.translatePoint);
         this.object = object;
         this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y);
-        // console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+        console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+
+        if (!this.object.vertexObject)
+        {
+            this.overlayArray = overlay;
+        } else {
+            this.overlayArray = [];
+        }
         // console.log("START AT", this.object.vertexArr[0]);
         // this.object.highlight = true;
     }
@@ -99,22 +106,59 @@ export default class Editor
     moveObject(mousePos)
     {
         this.object.setTranslatePoint(0, 0);
+
         this.points[2] = mousePos; // set currentmouse
         // this.points[3] = this.object.translatePoint;
         // this.object.setTranslatePoint(this.points[1].x, this.points[1].y);
         var delta = getPositionDelta(this.points[0], this.points[2]);
         this.object.setTranslatePoint(delta.x, delta.y);
 
+        // var i;
+        // for (i = 0; i < this.overlayArray.length; i++)
+        // {
+        //     this.overlayArray[i].setTranslatePoint(delta.x, delta.y);
+        // }   
+
+        // if (this.object.vertexObject)
+        // {
+        //     this.object.setTranslate();
+        //     this.object.updateObjectVertexes();
+        // }
+
+        // return this.overlayArray;
         // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
 
         // this.points[0] = mousePos; // set currentmouse to prev mouse
     }
 
+    moveOverlayObjects(mousePos)
+    {
+        var i;
+        for(i = 0; i < this.overlayArray.length; i++)
+        {
+            this.overlayArray[i].setTranslatePoint(0, 0);
+
+            this.points[2] = mousePos; // set currentmouse
+            // this.points[3] = this.object.translatePoint;
+            // this.object.setTranslatePoint(this.points[1].x, this.points[1].y);
+            var delta = getPositionDelta(this.points[0], this.points[2]);
+            this.overlayArray[i].setTranslatePoint(delta.x, delta.y);
+        }
+        
+    }
+
     // On key up
     releaseObject()
     {
-        // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+        console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
         this.object.setTranslate();
+        
+        var i;
+        for (i = 0; i < this.overlayArray.length; i++)
+        {
+            this.overlayArray[i].setTranslate();
+        } 
+
         // this.object.highlight = false;
         // console.log("END AT", this.object.vertexArr[0]);
         this.clearPoints();

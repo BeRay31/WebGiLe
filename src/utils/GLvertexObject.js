@@ -38,6 +38,8 @@ export default class GLVertexObject {
       this.vertexObject = true;
       this.glObject = glObject;
       this.vID = vID;
+      this.x = x;
+      this.y = y;
       console.log("vertexpoint created");
     }
 
@@ -62,17 +64,24 @@ export default class GLVertexObject {
       this.x += this.translatePoint.x;
       this.y += this.translatePoint.y;
   
+      // console.log(this.x, this.y, "X AND Y");
+      // console.log(this.vID*2, this.vID*2+1, "VID");
+
+      this.glObject.vertexArr[this.vID*2] = this.x;
+      this.glObject.vertexArr[this.vID*2+1] = this.y; 
+
+      console.log(this.glObject, "OBJECT");
+
       // console.log("done");
       this.translatePoint.x = 0;
       this.translatePoint.y = 0;
-
+      // this.updateObjectVertexes();
       // this.updateObjectVertexes();
     }
 
     updateObjectVertexes()
     {
-      this.glObject.vertexArr[this.vID*2] = this.x;
-      this.glObject.vertexArr[this.vID*2+1] = this.y; 
+      
     }
 
     // highlight() {
@@ -114,7 +123,7 @@ export default class GLVertexObject {
       }
     
       drawSelect(selectProgram) {
-        this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
+        // this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
 
         this.calculateProjMat();
         this.bindBuffer();
@@ -136,7 +145,7 @@ export default class GLVertexObject {
       }
     
       draw() {
-        this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
+        // this.setTranslatePoint(this.glObject.translatePoint.x, this.glObject.translatePoint.y);
 
         this.calculateProjMat();
         this.bindBuffer();

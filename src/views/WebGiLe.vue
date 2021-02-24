@@ -218,7 +218,7 @@ export default {
       this.gl.useProgram(this.shaderProgram);
 
       if(id >=0 ) {
-        this.selectedObject = this.glToRender.find(el => el.id === id) || this.overlayToRender.find(el => el.id === id);
+        this.selectedObject = this.overlayToRender.find(el => el.id === id) || this.glToRender.find(el => el.id === id);
       }
 
       console.log(this.selectedObject.id, "OBJ ID");
@@ -231,10 +231,35 @@ export default {
       this.selectedObject = null;
       this.tempRenderedObject = null;
       this.currentFeature = e;
+
+      console.log(this.currentFeature);
+
+      if (this.currentFeature != 'select')
+      {
+        this.clearOverlay();
+        this.selectedObject = null;
+        this.render();
+      }
+    },
+    createOverlayForObject(obj)
+    {
+      if (!obj.vertexObject)
+        {
+          console.log(obj.vertexObject, "IS VERTEX OBJECT");
+
+          var vertexPointers = this.editor.showVertexes(obj, this.itemCount);
+
+          var i;
+          for (i = 0; i < vertexPointers.length; i++)
+          {
+            // console.log("HUHI", vertexPointers[i]);
+            this.addToOverlay(vertexPointers[i]);
+          }
+        }
     },
     mouseDownHandler() {
       this.mouseDown = true;
-
+      
       switch (this.currentFeature) {
         case 'line':
           this.pointArr.push(...Object.values(this.mousePos));
@@ -250,7 +275,7 @@ export default {
 
           this.inspectObject();
 
-          if (prevObject != this.selectedObject)
+          if (prevObject != this.selectedObject && !this.selectedObject.vertexObject)
           {
             this.clearOverlay();
           }
@@ -259,22 +284,12 @@ export default {
           // if (this.selectedObject)
           // {
             // this.clearOverlay();
-            this.editor.selectObject(this.selectedObject, this.mousePos);
+            this.editor.selectObject(this.selectedObject, this.mousePos, this.overlayToRender);
 
-            if (!this.selectedObject.vertexObject)
+            if (prevObject != this.selectedObject)
             {
-              console.log(this.selectedObject.vertexObject, "IS VERTEX OBJECT");
-
-              var vertexPointers = this.editor.showVertexes(this.selectedObject, this.itemCount);
-
-              var i;
-              for (i = 0; i < vertexPointers.length; i++)
-              {
-                // console.log("HUHI", vertexPointers[i]);
-                this.addToOverlay(vertexPointers[i]);
-              }
-            }
-            
+              this.createOverlayForObject(this.selectedObject);
+            }            
           // }
           // this.pointArr.push(this.mousePos); // initial point
           break;        
@@ -423,6 +438,10 @@ export default {
     resizeObject() {
       this.selectedObject.setScaleSize(this.selectedSize, this.selectedSize);
       this.selectedObject.setTranslatePoint(0, 0);
+
+      this.clearOverlay();
+      this.createOverlayForObject(this.selectedObject);
+
       this.render();
     },
     attachColor() {
@@ -495,6 +514,12 @@ export default {
             break;
           case 'select':
             this.editor.moveObject(this.mousePos);
+            if (!this.selectedObject.vertexObject)
+            {
+              console.log("THIS IS NOT A VERTEX OBJECT");
+              this.editor.moveOverlayObjects(this.mousePos);
+            }
+            this.clearCanvas();
             this.render();
             break;
           default:
