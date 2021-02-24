@@ -76,7 +76,7 @@
     <input 
       id="hidden-input-file-button" 
       type="file" 
-      accept=".json"
+      accept=".wbgile.json"
       @change="renderJSON"
     >
   </div>
@@ -471,7 +471,7 @@ export default {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(toBeDownloaded);
       const downloadAnchorNode = document.createElement('a');
       downloadAnchorNode.setAttribute("href",     dataStr);
-      downloadAnchorNode.setAttribute("download", exportName + ".json");
+      downloadAnchorNode.setAttribute("download", exportName + ".wbgile.json");
       document.body.appendChild(downloadAnchorNode); // required for firefox
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
