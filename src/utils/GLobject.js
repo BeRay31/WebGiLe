@@ -37,6 +37,22 @@ export default class GLObject {
     this.translatePoint.y = y;
   }
 
+  setTranslate()
+  {
+    console.log("vertex count ",this.vertexArr.length);
+    var i = 0;
+    for (i = 0; i < this.vertexArr.length; i+=2)
+    {
+      this.vertexArr[i] += this.translatePoint.x;
+      this.vertexArr[i+1] += this.translatePoint.y;
+      console.log("working on vertex set", i);
+    }
+
+    console.log("done");
+    this.translatePoint.x = 0;
+    this.translatePoint.y = 0;
+  }
+
   setRotateDegree(deg) {
     this.rotateDegree = deg;
   }

@@ -47,7 +47,7 @@
 
 import { createProgramShader, createSelectShader, prepareFrameTexture } from '@/utils/shaders';
 import GLObject from '@/utils/GLobject';
-// import Editor from '@/utils/editor';
+import Editor from '@/utils/editor';
 
 export default {
   name: "WebGLCanvas",
@@ -88,7 +88,7 @@ export default {
     // prepare frame buffer
     this.frameBuffer = prepareFrameTexture(this.gl);
 
-    // this.editor = new Editor(this.canvas, this.gl);
+    this.editor = new Editor(this.canvas, this.gl);
     this.render();
   },
   methods: {
@@ -190,7 +190,8 @@ export default {
         case 'select':
           this.inspectObject();
           this.pointArr = new Array();
-          this.pointArr.push(this.mousePos); // initial point
+          // this.pointArr.push(this.mousePos); // initial point
+          this.editor.selectObject(this.selectedObject, this.mousePos);
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -209,10 +210,12 @@ export default {
       } else if(this.currentFeature == 'polygon'){
         this.pointArr.push(...Object.values(this.mousePos));
       } else if(this.currentFeature == 'select') {
-        this.selectedObject = null;
+        // this.selectedObject = null;
         this.pointArr = new Array();
+        // this.editor.releaseObject();
       }
       this.editor.releaseObject();
+      this.render();
     },
     drawLine(value) {
       if(this.pointArr.length > 2) {
@@ -305,7 +308,9 @@ export default {
             this.drawPolygon(value);
             break;
           case 'select':
-            this.moveObject(value);
+            // this.moveObject(value);
+            this.editor.moveObject(this.mousePos);
+            this.render();
             break;
           default:
             break;

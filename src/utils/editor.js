@@ -16,7 +16,7 @@ const getPositionDelta = (pos1, pos2) =>
 {
     const delta = {
         x: pos2.x - pos1.x,
-        y: pos2.x - pos1.y
+        y: pos2.y - pos1.y
     }
 
     return delta;
@@ -73,25 +73,37 @@ export default class Editor
     selectObject(object, mousePos)
     {
         this.clearPoints();
-        this.points.push(mousePos); // prevmouse
-        this.points.push(mousePos); // currmouse
+        this.points.push(mousePos); // initial mouse point
+        this.points.push(object.translatePoint);
         this.object = object;
+        this.object.setTranslatePoint(this.object.translatePoint.x, this.object.translatePoint.y)
+        console.log("Translate from ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+        console.log("START AT", this.object.vertexArr[0])
     }
 
     // On key down + on mouse move 
     // assumes an object is selected
     moveObject(mousePos)
     {
-        this.points[1] = mousePos; // set currentmouse
-        var delta = getPositionDelta(this.points[0], this.points[1])
+        this.object.setTranslatePoint(0, 0);
+        this.points[2] = mousePos; // set currentmouse
+        // this.points[3] = this.object.translatePoint;
+        // this.object.setTranslatePoint(this.points[1].x, this.points[1].y);
+        var delta = getPositionDelta(this.points[0], this.points[2]);
         this.object.setTranslatePoint(delta.x, delta.y);
 
-        this.points[0] = mousePos; // set currentmouse to prev mouse
+        // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+
+        // this.points[0] = mousePos; // set currentmouse to prev mouse
     }
 
     // On key up
     releaseObject()
     {
+        // console.log("Translate to ", this.object.translatePoint.x, "and ", this.object.translatePoint.y);
+        this.object.setTranslate();
+        console.log("END AT", this.object.vertexArr[0]);
         this.clearPoints();
+        this.object = null;
     }
 }
