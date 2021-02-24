@@ -177,7 +177,7 @@ export default {
         obj.drawSelect(this.selectProgram);
       }
       for(const obj of this.overlayToRender) {
-        obj.drawSelect();
+        obj.drawSelect(this.selectProgram);
       }
     },
     createObject() {
@@ -217,10 +217,11 @@ export default {
       // use the programShader
       this.gl.useProgram(this.shaderProgram);
 
-
       if(id >=0 ) {
         this.selectedObject = this.glToRender.find(el => el.id === id) || this.overlayToRender.find(el => el.id === id);
       }
+
+      console.log(this.selectedObject.id, "OBJ ID");
     },
     selectFeature(e) {
       if(this.currentFeature == e) {
@@ -245,10 +246,37 @@ export default {
           this.drawPolygon(this.mousePos);
           break;
         case 'select':
+          var prevObject = this.selectedObject;
+
           this.inspectObject();
+
+          if (prevObject != this.selectedObject)
+          {
+            this.clearOverlay();
+          }
+
           this.pointArr = new Array();
+          // if (this.selectedObject)
+          // {
+            // this.clearOverlay();
+            this.editor.selectObject(this.selectedObject, this.mousePos);
+
+            if (!this.selectedObject.vertexObject)
+            {
+              console.log(this.selectedObject.vertexObject, "IS VERTEX OBJECT");
+
+              var vertexPointers = this.editor.showVertexes(this.selectedObject, this.itemCount);
+
+              var i;
+              for (i = 0; i < vertexPointers.length; i++)
+              {
+                // console.log("HUHI", vertexPointers[i]);
+                this.addToOverlay(vertexPointers[i]);
+              }
+            }
+            
+          // }
           // this.pointArr.push(this.mousePos); // initial point
-          this.editor.selectObject(this.selectedObject, this.mousePos);
           break;        
         default:
           console.log("NOTHING HEHE");
@@ -270,6 +298,14 @@ export default {
         // this.selectedObject = null;
         this.pointArr = new Array();
         this.editor.releaseObject();
+        
+        console.log(this.overlayToRender.length, "OVERLAY COUNT");
+
+        var i;
+        for (i = 0; i < this.overlayToRender.length; i++)
+        {
+          this.overlayToRender[i].setTranslate();
+        }
       }
       // this.editor.releaseObject();
       this.render();
@@ -309,6 +345,7 @@ export default {
 
       const lengthX = a-x;
       const lengthY = b-y;
+
       // let minLength = 0
       const minLength = (Math.max(Math.abs(lengthX),Math.abs(lengthY)) == Math.abs(lengthX)) ? Math.abs(lengthY) : Math.abs(lengthX);
       console.log(Math.abs(lengthX));
